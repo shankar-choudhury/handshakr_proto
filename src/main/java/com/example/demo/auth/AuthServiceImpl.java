@@ -6,6 +6,8 @@ import com.example.demo.user.User;
 import com.example.demo.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,13 +34,13 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public String authenticate(LoginRequest request) {
-        manager.authenticate(
+    public UserDetails authenticate(LoginRequest request) {
+        Authentication authentication = manager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
                         request.password()
                 ));
 
-        return request.username() + "successfully logged in";
+        return (UserDetails) authentication.getPrincipal();
     }
 }

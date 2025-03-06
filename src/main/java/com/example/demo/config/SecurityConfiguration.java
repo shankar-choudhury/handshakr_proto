@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -17,9 +18,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfiguration {
     private final AuthenticationProvider authProvider;
+    private final JwtAuthenticationFilter jwtFilter;
 
-    public SecurityConfiguration(AuthenticationProvider authProvider) {
+    public SecurityConfiguration(AuthenticationProvider authProvider, JwtAuthenticationFilter jwtFilter) {
         this.authProvider = authProvider;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
@@ -27,18 +30,12 @@ public class SecurityConfiguration {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/auth/register", "/login", "/register",
-                                "/static/**", "/home.html", "/login.html", "/register.html").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/login", "/register",
+                                "/static/**", "/login.html", "/register.html").permitAll()
                         .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/login.html")
-                        .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/home.html", true))
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login.html"))
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authProvider)
                 .build();
     }
