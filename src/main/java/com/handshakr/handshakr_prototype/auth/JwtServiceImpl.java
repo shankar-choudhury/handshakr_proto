@@ -1,4 +1,4 @@
-package com.example.demo.auth;
+package com.handshakr.handshakr_prototype.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,7 +1,7 @@
-package com.example.demo.controller;
+package com.handshakr.handshakr_prototype.controller;
 
-import com.example.demo.user.User;
-import com.example.demo.user.UserService;
+import com.handshakr.handshakr_prototype.user.User;
+import com.handshakr.handshakr_prototype.user.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;

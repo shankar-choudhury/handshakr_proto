@@ -1,4 +1,4 @@
-package com.example.demo.auth;
+package com.handshakr.handshakr_prototype.auth;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

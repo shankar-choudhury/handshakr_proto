@@ -1,11 +1,11 @@
-package com.example.demo.controller;
+package com.handshakr.handshakr_prototype.controller;
 
-import com.example.demo.auth.AuthService;
-import com.example.demo.auth.JwtService;
-import com.example.demo.response.ApiResponse;
-import com.example.demo.user.LoginRequest;
-import com.example.demo.user.RegisterRequest;
-import com.example.demo.user.User;
+import com.handshakr.handshakr_prototype.auth.AuthService;
+import com.handshakr.handshakr_prototype.auth.JwtService;
+import com.handshakr.handshakr_prototype.response.ApiResponse;
+import com.handshakr.handshakr_prototype.user.LoginRequest;
+import com.handshakr.handshakr_prototype.user.RegisterRequest;
+import com.handshakr.handshakr_prototype.user.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +18,7 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import static com.example.demo.auth.Constants.*;
+import static com.handshakr.handshakr_prototype.auth.Constants.*;
 
 @Controller
 @RequestMapping("/auth")

@@ -1,9 +1,9 @@
-package com.example.demo.auth;
+package com.handshakr.handshakr_prototype.auth;
 
-import com.example.demo.user.LoginRequest;
-import com.example.demo.user.RegisterRequest;
-import com.example.demo.user.User;
-import com.example.demo.user.UserRepository;
+import com.handshakr.handshakr_prototype.user.LoginRequest;
+import com.handshakr.handshakr_prototype.user.RegisterRequest;
+import com.handshakr.handshakr_prototype.user.User;
+import com.handshakr.handshakr_prototype.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

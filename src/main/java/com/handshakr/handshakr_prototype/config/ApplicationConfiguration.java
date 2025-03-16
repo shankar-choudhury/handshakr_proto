@@ -1,6 +1,6 @@
-package com.example.demo.config;
+package com.handshakr.handshakr_prototype.config;
 
-import com.example.demo.user.UserRepository;
+import com.handshakr.handshakr_prototype.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

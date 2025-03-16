@@ -1,4 +1,4 @@
-package com.example.demo.user;
+package com.handshakr.handshakr_prototype.user;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

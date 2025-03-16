@@ -1,7 +1,7 @@
-package com.example.demo.config;
+package com.handshakr.handshakr_prototype.config;
 
-import com.example.demo.auth.Constants;
-import com.example.demo.auth.JwtService;
+import com.handshakr.handshakr_prototype.auth.Constants;
+import com.handshakr.handshakr_prototype.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

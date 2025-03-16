@@ -1,4 +1,4 @@
-package com.example.demo.user;
+package com.handshakr.handshakr_prototype.user;
 
 import jakarta.persistence.*;
 import lombok.Builder;

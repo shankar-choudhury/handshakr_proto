@@ -1,4 +1,4 @@
-package com.example.demo.response;
+package com.handshakr.handshakr_prototype.response;
 
 public record ApiResponse<T>(String message, int httpStatus, T data) {
     public static <T> ApiResponse<T> success(String message, T data) {
