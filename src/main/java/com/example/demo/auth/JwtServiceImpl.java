@@ -19,7 +19,7 @@ import java.util.function.Function;
 @Service
 public class JwtServiceImpl implements JwtService{
     private final String secretKey = generateBase64Key();
-    private long jwtExpiration = Constants.JWT_EXPIRATION;
+    private final long jwtExpiration = Constants.JWT_EXPIRATION;
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -56,11 +56,10 @@ public class JwtServiceImpl implements JwtService{
                 .add(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .and()
                 .signWith(getSignInKey())
                 .compact();
-
     }
 
     private String generateBase64Key() {
@@ -97,6 +96,5 @@ public class JwtServiceImpl implements JwtService{
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
     }
 }
