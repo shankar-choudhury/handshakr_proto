@@ -1,62 +1,85 @@
 package com.example.demo.controller;
 
 import com.example.demo.auth.AuthService;
-import com.example.demo.auth.Constants;
 import com.example.demo.auth.JwtService;
+import com.example.demo.response.ApiResponse;
 import com.example.demo.user.LoginRequest;
 import com.example.demo.user.RegisterRequest;
 import com.example.demo.user.User;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
+
+import static com.example.demo.auth.Constants.*;
 
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
-
     private final AuthService authService;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final CsrfTokenRepository csrfTokenRepository;
 
-    public AuthController(AuthService authService, JwtService jwtService, UserDetailsService userDetailsService) {
+    public AuthController(AuthService authService,
+                          JwtService jwtService,
+                          UserDetailsService userDetailsService,
+                          CsrfTokenRepository csrfTokenRepository) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.csrfTokenRepository = csrfTokenRepository;
     }
 
     @PostMapping("/register")
-    public RedirectView register(@ModelAttribute RegisterRequest request) {
+    public ResponseEntity<ApiResponse<Void>> register(@ModelAttribute RegisterRequest request) {
         User user = authService.register(request);
-        return new RedirectView("/login.html");
+        return ResponseEntity.ok(ApiResponse.success("User registered successfully"));
     }
 
     @PostMapping("/login")
-    public RedirectView login(@ModelAttribute LoginRequest request, HttpServletResponse response) {
-        authService.authenticate(request);
+    public ResponseEntity<ApiResponse<String>> login(@ModelAttribute LoginRequest loginRequest, HttpServletRequest httpRequest, HttpServletResponse response) {
+        authService.authenticate(loginRequest);
 
-        UserDetails details = userDetailsService.loadUserByUsername(request.username());
+        UserDetails details = userDetailsService.loadUserByUsername(loginRequest.username());
 
         String jwtToken = jwtService.generateToken(details);
+        Cookie jwtCookie = createCookie(JWT_COOKIE_NAME, jwtToken, true, COOKIE_EXPIRATION);
 
-        response.addCookie(createJwtCookie(jwtToken, Constants.COOKIE_EXPIRATION));
+        CsrfToken csrfToken = csrfTokenRepository.generateToken(httpRequest);
+        Cookie csrfCookie = createCookie(CSRF_COOKIE_NAME, csrfToken.getToken(), false, COOKIE_EXPIRATION);
 
-        return new RedirectView("/home.html");
+        response.addCookie(jwtCookie);
+        response.addCookie(csrfCookie);
+
+        return ResponseEntity.ok(ApiResponse.success("Login successful", jwtToken));
     }
 
     @PostMapping("/logout")
-    public RedirectView logout(HttpServletResponse response) {
-        response.addCookie(createJwtCookie(null, 0)); // Invalidate cookie given by login by having browser overwrite cookie with same name
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        // Invalidate cookie given by login by having browser overwrite cookie with same name
+        response.addCookie(createCookie(JWT_COOKIE_NAME, null, true, 0));
+        response.addCookie(createCookie(CSRF_COOKIE_NAME, null, false, 0));
 
-        return new RedirectView("/login.html");
+        return ResponseEntity.ok(ApiResponse.success("Logout successful"));
     }
 
-    private Cookie createJwtCookie(String jwtToken, int maxAge) {
-        Cookie jwtCookie = new Cookie(Constants.COOKIE_NAME, jwtToken);
-        jwtCookie.setHttpOnly(true); //Useful to prevent CSRF attacks
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("An error occurred: " + ex.getMessage(), 500));
+    }
+
+    private Cookie createCookie(String cookieName, String token, boolean httpOnly, int maxAge) {
+        Cookie jwtCookie = new Cookie(cookieName, token);
+        jwtCookie.setHttpOnly(httpOnly);
         jwtCookie.setSecure(false); //Set to true if using HTTPS
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(maxAge);

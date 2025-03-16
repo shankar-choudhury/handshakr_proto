@@ -82,7 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .or(() -> Optional.ofNullable(request.getCookies())
                         .stream()
                         .flatMap(Arrays::stream)
-                        .filter(cookie -> Objects.equals(Constants.COOKIE_NAME, cookie.getName()))
+                        .filter(cookie -> Objects.equals(Constants.JWT_COOKIE_NAME, cookie.getName()))
                         .map(Cookie::getValue)
                         .findFirst());
     }
