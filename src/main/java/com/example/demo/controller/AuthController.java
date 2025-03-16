@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 
 import com.example.demo.auth.AuthService;
+import com.example.demo.auth.Constants;
 import com.example.demo.auth.JwtService;
 import com.example.demo.user.LoginRequest;
 import com.example.demo.user.RegisterRequest;
 import com.example.demo.user.User;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -40,8 +42,24 @@ public class AuthController {
 
         String jwtToken = jwtService.generateToken(details);
 
-        response.setHeader("Authorization", "Bearer " + jwtToken);
+        response.addCookie(createJwtCookie(jwtToken, Constants.COOKIE_EXPIRATION));
 
-        return new RedirectView("./home.html");
+        return new RedirectView("/home.html");
+    }
+
+    @PostMapping("/logout")
+    public RedirectView logout(HttpServletResponse response) {
+        response.addCookie(createJwtCookie(null, 0)); // Invalidate cookie given by login by having browser overwrite cookie with same name
+
+        return new RedirectView("/login.html");
+    }
+
+    private Cookie createJwtCookie(String jwtToken, int maxAge) {
+        Cookie jwtCookie = new Cookie(Constants.COOKIE_NAME, jwtToken);
+        jwtCookie.setHttpOnly(true); //Useful to prevent CSRF attacks
+        jwtCookie.setSecure(false); //Set to true if using HTTPS
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(maxAge);
+        return jwtCookie;
     }
 }
