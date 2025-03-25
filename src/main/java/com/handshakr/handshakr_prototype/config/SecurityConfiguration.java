@@ -31,7 +31,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
                 .csrf(csrf -> csrf
-                        .csrfTokenRepository(csrfTokenRepository()) // Store CSRF token in a cookie
+                        .csrfTokenRepository(csrfTokenRepository())
                         .ignoringRequestMatchers("/auth/login", "/auth/register")
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -59,6 +59,6 @@ public class SecurityConfiguration {
 
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
-        return CookieCsrfTokenRepository.withHttpOnlyFalse(); // Store CSRF token in a cookie
+        return new CookieCsrfTokenRepository(); // Store CSRF token in a cookie
     }
 }

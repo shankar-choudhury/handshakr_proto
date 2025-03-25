@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +17,8 @@ import java.util.function.Function;
 
 @Service
 public class JwtServiceImpl implements JwtService{
-    private final String secretKey = generateBase64Key();
+    @Value("${jwt.secret-key}")
+    private String secretKey;
     private final long jwtExpiration = Constants.JWT_EXPIRATION;
     @Override
     public String extractUsername(String token) {
@@ -64,7 +67,9 @@ public class JwtServiceImpl implements JwtService{
             KeyGenerator keyGenerator = KeyGenerator.getInstance("HmacSHA256");
             keyGenerator.init(256);
             SecretKey key = keyGenerator.generateKey();
-            return Base64.getEncoder().encodeToString(key.getEncoded());
+            String val = Base64.getEncoder().encodeToString(key.getEncoded());
+            System.out.println(val);
+            return val;
         } catch (NoSuchAlgorithmException na) {
             throw new RuntimeException("Error using key generation algo: algo does not exits", na);
         }

@@ -18,6 +18,8 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+
 import static com.handshakr.handshakr_prototype.auth.Constants.*;
 
 @Controller
@@ -39,14 +41,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(@ModelAttribute RegisterRequest request) {
+    public ResponseEntity<ApiResponse<Void>> register(@RequestBody RegisterRequest request) {
+        System.out.println(request);
         User user = authService.register(request);
         return ResponseEntity.ok(ApiResponse.success("User registered successfully"));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@ModelAttribute LoginRequest loginRequest, HttpServletRequest httpRequest, HttpServletResponse response) {
-        authService.authenticate(loginRequest);
+    public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest httpRequest, HttpServletResponse response) {
+        UserDetails loginResponse = authService.authenticate(loginRequest);
 
         UserDetails details = userDetailsService.loadUserByUsername(loginRequest.username());
 
@@ -54,7 +57,7 @@ public class AuthController {
         Cookie jwtCookie = createCookie(JWT_COOKIE_NAME, jwtToken, true, COOKIE_EXPIRATION);
 
         CsrfToken csrfToken = csrfTokenRepository.generateToken(httpRequest);
-        Cookie csrfCookie = createCookie(CSRF_COOKIE_NAME, csrfToken.getToken(), false, COOKIE_EXPIRATION);
+        Cookie csrfCookie = createCookie(CSRF_COOKIE_NAME, csrfToken.getToken(), true, COOKIE_EXPIRATION);
 
         response.addCookie(jwtCookie);
         response.addCookie(csrfCookie);
@@ -63,7 +66,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody HttpServletResponse response) {
         // Invalidate cookie given by login by having browser overwrite cookie with same name
         response.addCookie(createCookie(JWT_COOKIE_NAME, null, true, 0));
         response.addCookie(createCookie(CSRF_COOKIE_NAME, null, false, 0));
@@ -74,7 +77,7 @@ public class AuthController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An error occurred: " + ex.getMessage(), 500));
+                .body(ApiResponse.error("An error occurred: " + ex.getMessage() + "/n" + Arrays.toString(ex.getStackTrace()), 500));
     }
 
     private Cookie createCookie(String cookieName, String token, boolean httpOnly, int maxAge) {
