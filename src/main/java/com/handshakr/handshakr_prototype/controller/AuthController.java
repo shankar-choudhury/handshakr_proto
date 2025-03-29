@@ -56,11 +56,7 @@ public class AuthController {
         String jwtToken = jwtService.generateToken(details);
         Cookie jwtCookie = createCookie(JWT_COOKIE_NAME, jwtToken, true, COOKIE_EXPIRATION);
 
-        CsrfToken csrfToken = csrfTokenRepository.generateToken(httpRequest);
-        Cookie csrfCookie = createCookie(CSRF_COOKIE_NAME, csrfToken.getToken(), true, COOKIE_EXPIRATION);
-
         response.addCookie(jwtCookie);
-        response.addCookie(csrfCookie);
 
         return ResponseEntity.ok(ApiResponse.success("Login successful", jwtToken));
     }

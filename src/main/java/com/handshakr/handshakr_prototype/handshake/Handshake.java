@@ -2,7 +2,6 @@ package com.handshakr.handshakr_prototype.handshake;
 
 import com.handshakr.handshakr_prototype.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +13,7 @@ import static com.handshakr.handshakr_prototype.handshake.HandshakeStatus.*;
 @Entity
 @Getter
 @Setter
+@Table(name="Handshakes")
 @NoArgsConstructor
 public class Handshake {
     @Id

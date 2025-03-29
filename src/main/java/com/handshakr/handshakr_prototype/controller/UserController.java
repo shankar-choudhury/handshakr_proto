@@ -4,6 +4,7 @@ import com.handshakr.handshakr_prototype.handshake.HandshakeService;
 import com.handshakr.handshakr_prototype.handshake.dto.CreateHandshakeRequest;
 import com.handshakr.handshakr_prototype.handshake.dto.HandshakeDto;
 import com.handshakr.handshakr_prototype.user.User;
+import com.handshakr.handshakr_prototype.user.UserDto;
 import com.handshakr.handshakr_prototype.user.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,9 +31,9 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> authenticatedUser() {
-        var curr = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(curr);
+    public ResponseEntity<UserDto> authenticatedUser(Principal principal) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(UserDto.from(user));
     }
 
     @PostMapping("/create-handshake")
