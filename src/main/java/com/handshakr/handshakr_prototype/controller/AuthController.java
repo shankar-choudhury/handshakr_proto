@@ -81,11 +81,11 @@ public class AuthController {
     }
 
     private Cookie createCookie(String cookieName, String token, boolean httpOnly, int maxAge) {
-        Cookie jwtCookie = new Cookie(cookieName, token);
-        jwtCookie.setHttpOnly(httpOnly);
-        jwtCookie.setSecure(false); //Set to true if using HTTPS
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(maxAge);
-        return jwtCookie;
+        Cookie cookie = new Cookie(cookieName, token);
+        cookie.setHttpOnly(httpOnly);
+        cookie.setSecure(false); //Set to true if using HTTPS
+        cookie.setPath("/");
+        cookie.setMaxAge(maxAge);
+        return cookie;
     }
 }

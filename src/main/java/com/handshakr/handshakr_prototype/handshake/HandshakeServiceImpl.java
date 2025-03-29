@@ -7,7 +7,9 @@ import com.handshakr.handshakr_prototype.user.User;
 import com.handshakr.handshakr_prototype.user.UserService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class HandshakeServiceImpl implements HandshakeService{
@@ -65,5 +67,21 @@ public class HandshakeServiceImpl implements HandshakeService{
     public HandshakeDto getHandshakeByName(String handshakeName) {
         return HandshakeDto.from(repository.findByHandshakeName(handshakeName)
                 .orElseThrow(() -> new RuntimeException("Handshake with that username could not be found")));
+    }
+
+    @Override
+    public List<HandshakeDto> getHandshakesByInitiator(String username) {
+        return repository.findAllByInitiatorUsername(username)
+                .stream()
+                .map(HandshakeDto::from)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HandshakeDto> getHandshakesByAcceptor(String username) {
+        return repository.findAllByAcceptorUsername(username)
+                .stream()
+                .map(HandshakeDto::from)
+                .collect(Collectors.toList());
     }
 }

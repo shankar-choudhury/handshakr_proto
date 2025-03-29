@@ -2,7 +2,6 @@ package com.handshakr.handshakr_prototype.handshake.dto;
 
 import com.handshakr.handshakr_prototype.handshake.Handshake;
 import com.handshakr.handshakr_prototype.handshake.HandshakeStatus;
-import jakarta.persistence.Column;
 
 import java.util.Date;
 
