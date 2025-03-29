@@ -46,7 +46,8 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                         .sessionFixation().none())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new CsrfTokenLoggerFilter(), CsrfFilter.class)
+                .addFilterAfter(new CsrfCookieResponseFilter(), CsrfFilter.class)
+                .addFilterAfter(new CsrfTokenLoggerFilter(), CsrfCookieResponseFilter.class)
                 .authenticationProvider(authProvider)
                 .build();
     }

@@ -1,5 +1,6 @@
 package com.handshakr.handshakr_prototype.config;
 
+import com.handshakr.handshakr_prototype.auth.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,13 +20,22 @@ public class CsrfTokenLoggerFilter extends OncePerRequestFilter {
         CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
 
         if (token != null) {
-            System.out.println("CSRF Token: " + token.getToken());
-            System.out.println("CSRF Header: " + request.getHeader("X-XSRF-TOKEN"));
-            System.out.println("CSRF Cookie: " + Arrays.stream(request.getCookies())
-                    .filter(c -> c.getName().equals("XSRF-TOKEN"))
-                    .findFirst()
-                    .map(Cookie::getValue)
-                    .orElse("MISSING"));
+            System.out.println("\n=== CSRF Token Debug ===");
+            System.out.println("Token value: " + token.getToken());
+            System.out.println("Header received: " + request.getHeader(token.getHeaderName()));
+
+            if (request.getCookies() != null) {
+                Arrays.stream(request.getCookies())
+                        .filter(c -> c.getName().equals(Constants.CSRF_COOKIE_NAME))
+                        .findFirst()
+                        .ifPresentOrElse(
+                                c -> System.out.println("Cookie value: " + c.getValue()),
+                                () -> System.out.println("CSRF Cookie MISSING")
+                        );
+            } else {
+                System.out.println("No cookies in request");
+            }
+            System.out.println("======================\n");
         }
 
         filterChain.doFilter(request, response);
