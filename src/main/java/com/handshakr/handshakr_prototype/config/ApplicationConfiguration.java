@@ -1,6 +1,7 @@
 package com.handshakr.handshakr_prototype.config;
 
 import com.handshakr.handshakr_prototype.user.UserRepository;
+import com.handshakr.handshakr_prototype.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,16 +15,15 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 @Configuration
 public class ApplicationConfiguration {
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public ApplicationConfiguration(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public ApplicationConfiguration(UserService userService) {
+        this.userService = userService;
     }
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" + username));
+        return userService::findByUsername;
     }
 
     @Bean
