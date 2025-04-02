@@ -3,9 +3,10 @@ package com.handshakr.handshakr_prototype.config;
 import com.handshakr.handshakr_prototype.auth.Constants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.antlr.v4.runtime.misc.NotNull;
+import org.springframework.lang.NonNull;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -16,7 +17,10 @@ import java.util.Arrays;
 @Component
 public class CsrfTokenLoggerFilter extends OncePerRequestFilter {
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         CsrfToken token = (CsrfToken) request.getAttribute("_csrf");
 
         if (token != null) {

@@ -28,6 +28,8 @@ public class User implements UserDetails {
     private String email;
     @Column(nullable = false)
     private String password;
+    @Column
+    private String publicKey;
 
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
@@ -41,9 +43,10 @@ public class User implements UserDetails {
     }
 
     @OneToMany(mappedBy = "initiator", cascade = CascadeType.REFRESH)
-    private List<Handshake> initiatedHandshakes;
+    private List<Handshake> initiatorHandshakes;
+
     @OneToMany(mappedBy = "acceptor", cascade = CascadeType.REFRESH)
-    private List<Handshake> acceptedHandshakes;
+    private List<Handshake> receiverHandshakes;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

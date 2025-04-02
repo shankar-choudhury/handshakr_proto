@@ -32,28 +32,28 @@ public class Handshake {
     @Column(nullable = false)
     private String initiatorUsername;
     @Column(nullable = false)
-    private String acceptorUsername;
+    private String receiverUsername;
     @ManyToOne
     @JoinColumn(name = "initiator_id")
     private User initiator;
     @ManyToOne
     @JoinColumn(name = "acceptor_id")
-    private User acceptor;
+    private User receiver;
 
 
     public Handshake(String handshakeName,
                      String encryptedDetails,
                      Date createdDate,
                      String initiatorUsername,
-                     String acceptorUsername,
+                     String receiverUsername,
                      User initiator,
-                     User acceptor) {
+                     User receiver) {
         this.handshakeName = handshakeName;
         this.encryptedDetails = encryptedDetails;
         this.createdDate = createdDate;
         this.initiatorUsername = initiatorUsername;
-        this.acceptorUsername = acceptorUsername;
+        this.receiverUsername = receiverUsername;
         this.initiator = initiator;
-        this.acceptor = acceptor;
+        this.receiver = receiver;
     }
 }

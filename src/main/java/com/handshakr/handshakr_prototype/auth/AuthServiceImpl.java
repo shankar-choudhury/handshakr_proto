@@ -1,7 +1,7 @@
 package com.handshakr.handshakr_prototype.auth;
 
-import com.handshakr.handshakr_prototype.user.LoginRequest;
-import com.handshakr.handshakr_prototype.user.RegisterRequest;
+import com.handshakr.handshakr_prototype.user.dto.LoginRequest;
+import com.handshakr.handshakr_prototype.user.dto.RegisterRequest;
 import com.handshakr.handshakr_prototype.user.User;
 import com.handshakr.handshakr_prototype.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;

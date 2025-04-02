@@ -3,8 +3,8 @@ package com.handshakr.handshakr_prototype.controller;
 import com.handshakr.handshakr_prototype.auth.AuthService;
 import com.handshakr.handshakr_prototype.auth.JwtService;
 import com.handshakr.handshakr_prototype.response.ApiResponse;
-import com.handshakr.handshakr_prototype.user.LoginRequest;
-import com.handshakr.handshakr_prototype.user.RegisterRequest;
+import com.handshakr.handshakr_prototype.user.dto.LoginRequest;
+import com.handshakr.handshakr_prototype.user.dto.RegisterRequest;
 import com.handshakr.handshakr_prototype.user.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -59,15 +58,6 @@ public class AuthController {
         response.addCookie(jwtCookie);
 
         return ResponseEntity.ok(ApiResponse.success("Login successful", jwtToken));
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody HttpServletResponse response) {
-        // Invalidate cookie given by login by having browser overwrite cookie with same name
-        response.addCookie(createCookie(JWT_COOKIE_NAME, null, true, 0));
-        response.addCookie(createCookie(CSRF_COOKIE_NAME, null, false, 0));
-
-        return ResponseEntity.ok(ApiResponse.success("Logout successful"));
     }
 
     @ExceptionHandler(Exception.class)

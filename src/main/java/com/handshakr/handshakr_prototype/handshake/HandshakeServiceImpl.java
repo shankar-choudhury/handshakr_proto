@@ -8,6 +8,7 @@ import com.handshakr.handshakr_prototype.user.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class HandshakeServiceImpl implements HandshakeService{
 
     @Override
     public void updateHandshake(UpdateHandshakeRequest request) {
-        Handshake toUpdate = repository.findByHandshakeName(request.handshakeName())
+        Handshake toUpdate = repository.findByHandshakeName(Objects.requireNonNull(request).handshakeName())
                 .orElseThrow(() -> new RuntimeException("Handshake could not be found"));
 
         toUpdate.setMostRecentUpdateDate(request.updatedDate());
@@ -53,25 +54,25 @@ public class HandshakeServiceImpl implements HandshakeService{
     @Override
     public HandshakeDto getHandshakeByAcceptor(String username) {
         return HandshakeDto.from(
-                repository.findByAcceptorUsername(username)
+                repository.findByAcceptorUsername(Objects.requireNonNull(username))
                         .orElseThrow(() -> new RuntimeException("Handshake with that username could not be found")));
     }
 
     @Override
     public HandshakeDto getHandshakeByInitiator(String username) {
-        return HandshakeDto.from(repository.findByAcceptorUsername(username)
+        return HandshakeDto.from(repository.findByAcceptorUsername(Objects.requireNonNull(username))
                 .orElseThrow(() -> new RuntimeException("Handshake with that username could not be found")));
     }
 
     @Override
     public HandshakeDto getHandshakeByName(String handshakeName) {
-        return HandshakeDto.from(repository.findByHandshakeName(handshakeName)
+        return HandshakeDto.from(repository.findByHandshakeName(Objects.requireNonNull(handshakeName))
                 .orElseThrow(() -> new RuntimeException("Handshake with that username could not be found")));
     }
 
     @Override
     public List<HandshakeDto> getHandshakesByInitiator(String username) {
-        return repository.findAllByInitiatorUsername(username)
+        return repository.findAllByInitiatorUsername(Objects.requireNonNull(username))
                 .stream()
                 .map(HandshakeDto::from)
                 .collect(Collectors.toList());
@@ -79,7 +80,7 @@ public class HandshakeServiceImpl implements HandshakeService{
 
     @Override
     public List<HandshakeDto> getHandshakesByAcceptor(String username) {
-        return repository.findAllByAcceptorUsername(username)
+        return repository.findAllByAcceptorUsername(Objects.requireNonNull(username))
                 .stream()
                 .map(HandshakeDto::from)
                 .collect(Collectors.toList());

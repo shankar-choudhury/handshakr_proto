@@ -49,6 +49,7 @@ public class SecurityConfiguration {
                 .addFilterAfter(new CsrfCookieResponseFilter(), CsrfFilter.class)
                 .addFilterAfter(new CsrfTokenLoggerFilter(), CsrfCookieResponseFilter.class)
                 .authenticationProvider(authProvider)
+                .logout(logout -> logout.logoutUrl("user/logout"))
                 .build();
     }
 

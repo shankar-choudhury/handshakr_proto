@@ -1,5 +1,6 @@
-package com.handshakr.handshakr_prototype.handshake;
+package com.handshakr.handshakr_prototype.controller;
 
+import com.handshakr.handshakr_prototype.handshake.HandshakeService;
 import com.handshakr.handshakr_prototype.handshake.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +40,27 @@ public class HandshakeController {
         return new ResponseEntity<>(handshake, HttpStatus.OK);
     }
 
+    /**
+     * TODO: Split this endpoint into the following endpoints and their use cases:
+     * PutMapping("/accept-handshake") // used by initiator
+     *     public void acceptHandshake(){};
+     *
+     * PutMapping("/reject-handshake") // used by acceptor
+     *     public void rejectHandshake(){};
+     *
+     * PutMapping("/complete-handshake") // used by either
+     *     public void completeHandshake(){};
+     *
+     * PutMapping("/cancel-handshake") // used by initiator
+     *     public void cancelHandshake(){};
+     *
+     * @param request
+     * @return
+     */
     @PutMapping("/update-handshake")
     public ResponseEntity<HttpStatus> updateHandshake(@RequestBody UpdateHandshakeRequest request) {
         handshakeService.updateHandshake(request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
 }

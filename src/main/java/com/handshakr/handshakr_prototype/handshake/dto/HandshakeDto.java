@@ -21,7 +21,7 @@ public record HandshakeDto(
                 handshake.getMostRecentUpdateDate(),
                 handshake.getHandshakeStatus(),
                 handshake.getInitiatorUsername(),
-                handshake.getAcceptorUsername()
+                handshake.getReceiverUsername()
         );
     }
 }

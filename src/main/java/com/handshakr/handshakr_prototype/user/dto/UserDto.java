@@ -1,4 +1,6 @@
-package com.handshakr.handshakr_prototype.user;
+package com.handshakr.handshakr_prototype.user.dto;
+
+import com.handshakr.handshakr_prototype.user.User;
 
 public record UserDto(
         Long id,
