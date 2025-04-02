@@ -6,10 +6,13 @@ import com.handshakr.handshakr_prototype.response.ApiResponse;
 import com.handshakr.handshakr_prototype.user.dto.LoginRequest;
 import com.handshakr.handshakr_prototype.user.dto.RegisterRequest;
 import com.handshakr.handshakr_prototype.user.User;
+import com.handshakr.handshakr_prototype.utils.CookieUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,16 +30,13 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final CsrfTokenRepository csrfTokenRepository;
 
     public AuthController(AuthService authService,
                           JwtService jwtService,
-                          UserDetailsService userDetailsService,
-                          CsrfTokenRepository csrfTokenRepository) {
+                          UserDetailsService userDetailsService) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-        this.csrfTokenRepository = csrfTokenRepository;
     }
 
     @PostMapping("/register")
@@ -49,13 +49,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest httpRequest, HttpServletResponse response) {
         UserDetails loginResponse = authService.authenticate(loginRequest);
-
         UserDetails details = userDetailsService.loadUserByUsername(loginRequest.username());
-
         String jwtToken = jwtService.generateToken(details);
-        Cookie jwtCookie = createCookie(JWT_COOKIE_NAME, jwtToken, true, COOKIE_EXPIRATION);
 
-        response.addCookie(jwtCookie);
+        ResponseCookie jwtCookie = CookieUtils.createSecureCookie(
+                JWT_COOKIE_NAME,
+                jwtToken,
+                true,
+                COOKIE_EXPIRATION
+        );
+
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
         return ResponseEntity.ok(ApiResponse.success("Login successful", jwtToken));
     }
@@ -64,14 +68,5 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> handleException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("An error occurred: " + ex.getMessage() + "/n" + Arrays.toString(ex.getStackTrace()), 500));
-    }
-
-    private Cookie createCookie(String cookieName, String token, boolean httpOnly, int maxAge) {
-        Cookie cookie = new Cookie(cookieName, token);
-        cookie.setHttpOnly(httpOnly);
-        cookie.setSecure(false); //Set to true if using HTTPS
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAge);
-        return cookie;
     }
 }
