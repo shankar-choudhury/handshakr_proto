@@ -73,7 +73,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:3000", "https://handshakr-v2.vercel.app", "https://handshakr.duckdns.org"));
+        configuration.setAllowedOrigins(List.of("*")); //List.of("http://localhost:8080", "http://localhost:3000", "https://handshakr-v2.vercel.app", "https://handshakr.duckdns.org"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);  // Crucial for cookies
