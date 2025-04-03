@@ -36,9 +36,6 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
-                // HTTPS enforcement
-                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
-
                 // CSRF with logout protection configuration
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository())
@@ -76,7 +73,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:3000", "https://handshakr-v2.vercel.app/"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:3000", "https://handshakr-v2.vercel.app", "https://handshakr.duckdns.org"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);  // Crucial for cookies
