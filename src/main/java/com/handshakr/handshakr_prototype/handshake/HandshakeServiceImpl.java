@@ -27,6 +27,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         User initiator = userService.findByUsername(request.initiatorUsername());
         User acceptor = userService.findByUsername(request.acceptorUsername());
 
+        System.out.println(initiator.getUsername());
+        System.out.println(acceptor.getUsername());
+
         Handshake newHandshake = new Handshake(
                 request.handshakeName(),
                 request.encryptedDetails(),
@@ -54,13 +57,13 @@ public class HandshakeServiceImpl implements HandshakeService{
     @Override
     public HandshakeDto getHandshakeByAcceptor(String username) {
         return HandshakeDto.from(
-                repository.findByAcceptorUsername(Objects.requireNonNull(username))
+                repository.findByReceiverUsername(Objects.requireNonNull(username))
                         .orElseThrow(() -> new RuntimeException("Handshake with that username could not be found")));
     }
 
     @Override
     public HandshakeDto getHandshakeByInitiator(String username) {
-        return HandshakeDto.from(repository.findByAcceptorUsername(Objects.requireNonNull(username))
+        return HandshakeDto.from(repository.findByReceiverUsername(Objects.requireNonNull(username))
                 .orElseThrow(() -> new RuntimeException("Handshake with that username could not be found")));
     }
 
@@ -80,7 +83,7 @@ public class HandshakeServiceImpl implements HandshakeService{
 
     @Override
     public List<HandshakeDto> getHandshakesByAcceptor(String username) {
-        return repository.findAllByAcceptorUsername(Objects.requireNonNull(username))
+        return repository.findAllByReceiverUsername(Objects.requireNonNull(username))
                 .stream()
                 .map(HandshakeDto::from)
                 .collect(Collectors.toList());

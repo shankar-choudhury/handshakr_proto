@@ -47,7 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequest loginRequest, HttpServletRequest httpRequest, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<String>> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         UserDetails loginResponse = authService.authenticate(loginRequest);
         UserDetails details = userDetailsService.loadUserByUsername(loginRequest.username());
         String jwtToken = jwtService.generateToken(details);

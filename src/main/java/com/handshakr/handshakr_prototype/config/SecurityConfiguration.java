@@ -51,7 +51,7 @@ public class SecurityConfiguration {
 
                 // Authorization
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/auth/register", "/auth/login").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/logout").permitAll()
                         .anyRequest().authenticated())
 
                 // Stateless session
@@ -61,11 +61,11 @@ public class SecurityConfiguration {
 
                 // Filter order configuration
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new CsrfCookieResponseFilter(), CsrfFilter.class) //.addFilterAfter(new CsrfTokenLoggerFilter(), CsrfCookieResponseFilter.class) -- add for debugging csrf cookies
+                .addFilterAfter(new CsrfCookieResponseFilter(), CsrfFilter.class)
 
                 // Logout
                 .logout(logout -> logout
-                        .logoutUrl("auth/logout")
+                        .logoutUrl("/auth/logout")
                         .logoutSuccessHandler(logoutSuccessHandler())
                         .deleteCookies(JWT_COOKIE_NAME, CSRF_COOKIE_NAME))
 
@@ -78,7 +78,7 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:3000", "https://handshakr-v2.vercel.app/"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);  // Crucial for cookies
         configuration.setExposedHeaders(List.of("X-XSRF-TOKEN"));  // Expose CSRF header
@@ -96,7 +96,7 @@ public class SecurityConfiguration {
                 .secure(true)
                 .path("/")
                 .sameSite("Lax")
-                .maxAge(Duration.ofSeconds(COOKIE_EXPIRATION))
+                .maxAge(-1)
         );
 
         return repository;

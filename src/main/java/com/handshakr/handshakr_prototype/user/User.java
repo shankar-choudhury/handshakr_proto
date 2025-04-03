@@ -45,7 +45,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "initiator", cascade = CascadeType.REFRESH)
     private List<Handshake> initiatorHandshakes;
 
-    @OneToMany(mappedBy = "acceptor", cascade = CascadeType.REFRESH)
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.REFRESH)
     private List<Handshake> receiverHandshakes;
 
     @Override

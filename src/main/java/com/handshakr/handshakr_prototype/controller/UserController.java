@@ -59,8 +59,12 @@ public class UserController {
         String initiatorUsername = principal.getName();
         User initiator = userService.findByUsername(initiatorUsername);
 
+        System.out.println("HandshakeController: initiator username: " + initiatorUsername);
+
         // Verify acceptor exists
         User acceptor = userService.findByUsername(request.acceptorUsername());
+
+        System.out.println("HandshakeController: receiver username: " + acceptor.getUsername());
 
         // Create new request with initiator set to current user
         CreateHandshakeRequest securedRequest = new CreateHandshakeRequest(
