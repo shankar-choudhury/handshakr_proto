@@ -27,9 +27,6 @@ public class HandshakeServiceImpl implements HandshakeService{
         User initiator = userService.findByUsername(request.initiatorUsername());
         User acceptor = userService.findByUsername(request.acceptorUsername());
 
-        System.out.println(initiator.getUsername());
-        System.out.println(acceptor.getUsername());
-
         Handshake newHandshake = new Handshake(
                 request.handshakeName(),
                 request.encryptedDetails(),
