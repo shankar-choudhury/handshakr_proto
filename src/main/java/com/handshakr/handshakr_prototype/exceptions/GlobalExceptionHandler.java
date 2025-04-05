@@ -1,5 +1,6 @@
 package com.handshakr.handshakr_prototype.exceptions;
 
+import com.handshakr.handshakr_prototype.exceptions.types.*;
 import com.handshakr.handshakr_prototype.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
