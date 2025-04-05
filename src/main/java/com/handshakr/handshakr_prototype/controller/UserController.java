@@ -59,18 +59,13 @@ public class UserController {
             @Valid @RequestBody CreateHandshakeRequest request,
             Principal principal) {
 
+        System.out.println(request);
+
         String initiatorUsername = principal.getName();
         User initiator = userService.findByUsername(initiatorUsername);
         User acceptor = userService.findByUsername(request.receiverUsername());
 
-        CreateHandshakeRequest securedRequest = new CreateHandshakeRequest(
-                request.handshakeName(),
-                request.encryptedDetails(),
-                initiatorUsername,
-                request.receiverUsername()
-        );
-
-        handshakeService.createHandshake(securedRequest);
+        handshakeService.createHandshake(request, initiatorUsername);
         HandshakeDto createdHandshake = handshakeService.getHandshakeByName(request.handshakeName());
 
         return ResponseEntity.ok(ApiResponse.success("Handshake created successfully", createdHandshake));

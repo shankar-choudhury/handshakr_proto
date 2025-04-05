@@ -28,26 +28,14 @@ public class HandshakeServiceImpl implements HandshakeService{
 
     @Override
     @Transactional
-    public void createHandshake(CreateHandshakeRequest request) {
+    public void createHandshake(CreateHandshakeRequest request, String initiatorUsername) {
         // Validate request
         if (request == null) {
             throw exceptionFactory.badRequest("Handshake request cannot be null");
         }
-        if (request.handshakeName() == null || request.handshakeName().isEmpty() || request.handshakeName().isBlank()) {
-            throw exceptionFactory.badRequest("Handshake name cannot be null, empty, or blank");
-        }
-        if (request.encryptedDetails() == null || request.encryptedDetails().isEmpty() || request.encryptedDetails().isBlank()) {
-            throw exceptionFactory.badRequest("Handshake encrypted details cannot be null, empty, or blank");
-        }
-        if (request.initiatorUsername() == null || request.initiatorUsername().isEmpty() || request.initiatorUsername().isBlank()) {
-            throw exceptionFactory.badRequest("Handshake initiator name cannot be null, empty, or blank");
-        }
-        if (request.receiverUsername() == null || request.receiverUsername().isEmpty() || request.receiverUsername().isBlank()) {
-            throw exceptionFactory.badRequest("Handshake receiver name cannot be null, empty, or blank");
-        }
 
         try {
-            User initiator = userService.findByUsername(request.initiatorUsername());
+            User initiator = userService.findByUsername(initiatorUsername);
             User acceptor = userService.findByUsername(request.receiverUsername());
 
             // Check if handshake name already exists
@@ -58,7 +46,7 @@ public class HandshakeServiceImpl implements HandshakeService{
             Handshake newHandshake = new Handshake(
                     request.handshakeName(),
                     request.encryptedDetails(),
-                    request.initiatorUsername(),
+                    initiatorUsername,
                     request.receiverUsername(),
                     initiator,
                     acceptor);
@@ -68,8 +56,8 @@ public class HandshakeServiceImpl implements HandshakeService{
         } catch (UserNotFoundException e) {
             throw exceptionFactory.badRequest(
                     String.format("User not found: %s",
-                            e.getMessage().contains(request.initiatorUsername()) ?
-                                    "initiator" : "acceptor"));
+                            e.getMessage().contains(request.receiverUsername()) ?
+                                    "receiver" : "initiator"));
 
         } catch (DataIntegrityViolationException e) {
             throw exceptionFactory.databaseError(

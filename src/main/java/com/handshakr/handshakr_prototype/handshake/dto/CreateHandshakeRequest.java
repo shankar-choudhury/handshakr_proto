@@ -7,5 +7,4 @@ import org.springframework.lang.NonNull;
 public record CreateHandshakeRequest(
         @NotBlank @NotEmpty @NonNull String handshakeName,
         @NotBlank @NotEmpty @NonNull String encryptedDetails,
-        @NotBlank @NotEmpty @NonNull String initiatorUsername,
         @NotBlank @NotEmpty @NonNull String receiverUsername) { }
