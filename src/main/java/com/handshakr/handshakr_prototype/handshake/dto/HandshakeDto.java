@@ -3,13 +3,14 @@ package com.handshakr.handshakr_prototype.handshake.dto;
 import com.handshakr.handshakr_prototype.handshake.Handshake;
 import com.handshakr.handshakr_prototype.handshake.HandshakeStatus;
 
+import java.time.Instant;
 import java.util.Date;
 
 public record HandshakeDto(
         String handshakeName,
         String encryptedDetails,
-        Date signedDate,
-        Date completedDate,
+        Instant signedDate,
+        Instant completedDate,
         HandshakeStatus handshakeStatus,
         String initiatorUsername,
         String acceptorUsername) {

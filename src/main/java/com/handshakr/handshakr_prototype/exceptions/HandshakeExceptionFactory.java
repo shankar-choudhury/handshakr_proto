@@ -3,11 +3,13 @@ package com.handshakr.handshakr_prototype.exceptions;
 import com.handshakr.handshakr_prototype.exceptions.general.BadRequestException;
 import com.handshakr.handshakr_prototype.exceptions.general.DatabaseException;
 import com.handshakr.handshakr_prototype.exceptions.handshake.*;
+import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Component
 public class HandshakeExceptionFactory implements BaseExceptionFactory {
 
     private final Map<HandshakeExceptionType, Function<String[], RuntimeException>> exceptionMap;
