@@ -65,19 +65,6 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public UserDetails authenticate(LoginRequest request) {
-        // Validate input
-        if (request.username().isBlank()) {
-            throw userExceptionFactory.badRequest("Username is required");
-        }
-        if (request.password().isBlank()) {
-            throw userExceptionFactory.badRequest("Password is required");
-        }
-
-        // Check if user exists first
-        if (!userService.usernameExists(request.username())) {
-            throw userExceptionFactory.userNotFound(request.username());
-        }
-
         try {
             Authentication authentication = manager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -86,13 +73,11 @@ public class AuthServiceImpl implements AuthService{
                     ));
             return (UserDetails) authentication.getPrincipal();
         } catch (BadCredentialsException e) {
-            throw userExceptionFactory.invalidCredentials();
+            throw new BadCredentialsException("Invalid credentials");
         } catch (DisabledException e) {
-            throw userExceptionFactory.create(UserExceptionType.ACCOUNT_DISABLED);
+            throw new DisabledException("Account is disabled");
         } catch (LockedException e) {
-            throw userExceptionFactory.badRequest("Your account has been locked. Please contact support.");
-        } catch (AuthenticationServiceException e) {
-            throw userExceptionFactory.serviceUnavailable("Authentication service unavailable. Please try again later.");
+            throw new LockedException("Account is locked");
         }
     }
 }

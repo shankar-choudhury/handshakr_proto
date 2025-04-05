@@ -1,16 +1,22 @@
 package com.handshakr.handshakr_prototype.config;
 
 import static com.handshakr.handshakr_prototype.auth.Constants.*;
+
+import com.handshakr.handshakr_prototype.exceptions.security.InvalidCredentialsException;
+import com.handshakr.handshakr_prototype.exceptions.user.AccountLockedException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
@@ -40,6 +46,13 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository())
                         .ignoringRequestMatchers("/auth/login", "/auth/register")
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            // Clear cookies on authentication failure
+                            response.setHeader(HttpHeaders.SET_COOKIE, "");
+                            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Authentication failed");
+                        })
                 )
 
                 // CORS configuration

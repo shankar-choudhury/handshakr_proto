@@ -1,15 +1,9 @@
 package com.handshakr.handshakr_prototype.exceptions;
 
-import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeAlreadyExistsException;
-import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeInitiatorNotFoundException;
-import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeNotFoundException;
-import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeReceiverNotFoundException;
-import com.handshakr.handshakr_prototype.exceptions.security.InvalidCredentialsException;
-import com.handshakr.handshakr_prototype.exceptions.security.UnauthorizedAccessException;
+import com.handshakr.handshakr_prototype.exceptions.handshake.*;
+import com.handshakr.handshakr_prototype.exceptions.security.*;
 import com.handshakr.handshakr_prototype.exceptions.general.*;
-import com.handshakr.handshakr_prototype.exceptions.user.AccountLockedException;
-import com.handshakr.handshakr_prototype.exceptions.user.UserAlreadyExistsException;
-import com.handshakr.handshakr_prototype.exceptions.user.UserNotFoundException;
+import com.handshakr.handshakr_prototype.exceptions.user.*;
 import com.handshakr.handshakr_prototype.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -19,7 +13,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -54,17 +49,14 @@ public class GlobalExceptionHandler {
         }
         else if (ex instanceof MethodArgumentNotValidException manve) {
             manve.getBindingResult().getFieldErrors().forEach(error ->
-            {
-                error.getDefaultMessage();
-                errors.put(
-                        error.getField(),
-                        error.getDefaultMessage()
-                );
-            });
+                    errors.put(
+                            error.getField(),
+                            error.getDefaultMessage()
+                    ));
             message = "Invalid request: " + errors;
         }
         else {
-            message = ex.getMessage();  // For BadRequestException and ValidationException
+            message = ex.getMessage();
         }
 
         logger.warn("Validation error: {}", message);
@@ -73,23 +65,38 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message, HttpStatus.BAD_REQUEST.value()));
     }
 
-    // ====== Authentication/Authorization Exceptions ======
+    // ====== Authentication Failures (401) ======
     @ExceptionHandler({
             BadCredentialsException.class,
-            UnauthorizedAccessException.class
+            UsernameNotFoundException.class,
+            InvalidCredentialsException.class
     })
-    public ResponseEntity<ApiResponse<Void>> handleAuthExceptions(RuntimeException ex) {
-        HttpStatus status = ex instanceof BadCredentialsException ?
-                HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
-
-        logger.warn("Authentication error: {}", ex.getMessage());
+    public ResponseEntity<ApiResponse<Void>> handleAuthenticationFailures(RuntimeException ex) {
+        logger.warn("Authentication failure: {}", ex.getMessage());
         return ResponseEntity
-                .status(status)
-                .body(ApiResponse.error(ex.getMessage(), status.value()));
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("Invalid username or password", HttpStatus.UNAUTHORIZED.value()));
     }
 
-    // ====== Not Found Exceptions ======
+    // ====== Account Status Issues (403) ======
     @ExceptionHandler({
+            DisabledException.class,
+            LockedException.class,
+            AccountLockedException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleAccountStatusExceptions(RuntimeException ex) {
+        String message = ex instanceof DisabledException ?
+                "Account is disabled" : "Account is locked";
+
+        logger.warn("Account status error: {}", message);
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(message, HttpStatus.FORBIDDEN.value()));
+    }
+
+    // ====== Not Found Exceptions (404) ======
+    @ExceptionHandler({
+            InternalAuthenticationServiceException.class,
             UserNotFoundException.class,
             HandshakeNotFoundException.class,
             HandshakeReceiverNotFoundException.class,
@@ -102,7 +109,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND.value()));
     }
 
-    // ====== Conflict Exceptions ======
+    // ====== Conflict Exceptions (409) ======
     @ExceptionHandler({
             UserAlreadyExistsException.class,
             HandshakeAlreadyExistsException.class,
@@ -120,19 +127,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message, HttpStatus.CONFLICT.value()));
     }
 
-    // ====== Unauthorized Exceptions ======
-    @ExceptionHandler({
-            InvalidCredentialsException.class,
-            AccountLockedException.class
-    })
-    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedExceptions(RuntimeException ex) {
-        logger.warn("Access denied: {}", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()));
-    }
-
-    // ====== Service Availability Exceptions ======
+    // ====== Service Availability (503) ======
     @ExceptionHandler(ServiceUnavailableException.class)
     public ResponseEntity<ApiResponse<Void>> handleServiceUnavailable(ServiceUnavailableException ex) {
         logger.error("Service unavailable: {}", ex.getMessage());
@@ -141,7 +136,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value()));
     }
 
-    // ====== Database Exceptions ======
+    // ====== Database Errors (500) ======
     @ExceptionHandler(DatabaseException.class)
     public ResponseEntity<ApiResponse<Void>> handleDatabaseExceptions(DatabaseException ex) {
         logger.error("Database error: {}", ex.getMessage());
@@ -150,7 +145,16 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value()));
     }
 
-    // ====== Global Fallback ======
+    // ====== Authorization Failures (403) ======
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthorizationFailures(UnauthorizedAccessException ex) {
+        logger.warn("Authorization failure: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN.value()));
+    }
+
+    // ====== Global Fallback (500) ======
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGlobalException(Exception ex, WebRequest request) {
         logger.error("Unhandled exception for request {}: {}",
