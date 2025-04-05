@@ -37,7 +37,7 @@ public class Handshake {
     @JoinColumn(name = "initiator_id")
     private User initiator;
     @ManyToOne
-    @JoinColumn(name = "acceptor_id")
+    @JoinColumn(name = "receiver_id")
     private User receiver;
 
 

@@ -38,12 +38,14 @@ public class UserController {
         return ResponseEntity.ok(UserDto.from(user));
     }
 
+    @GetMapping("/me/getPublicKey")
     public ResponseEntity<String> getPublicKey(Principal principal) {
         String name = principal.getName();
         String publicKey = userService.findByUsername(name).getPublicKey();
         return ResponseEntity.ok(publicKey);
     }
 
+    @PostMapping("/me/setPublicKey")
     public ResponseEntity<HttpStatus> setPublicKey(@RequestBody SetPublicKeyRequest request, Principal principal) {
         String name = principal.getName();
         userService.findByUsername(name).setPublicKey(request.publicKey());
