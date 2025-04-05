@@ -59,4 +59,19 @@ public class ExceptionFactory {
         return (BadRequestException) create(
                 ExceptionType.BAD_REQUEST, message);
     }
+
+    public ServiceUnavailableException serviceUnavailable(String message) {
+        return (ServiceUnavailableException) create(
+                ExceptionType.SERVICE_UNAVAILABLE, message);
+    }
+
+    public DatabaseException databaseError(String message) {
+        return (DatabaseException) create(
+                ExceptionType.DATABASE_ERROR, message);
+    }
+
+    public AccountLockedException accountLocked(String message) {
+        return (AccountLockedException) create(
+                ExceptionType.ACCOUNT_LOCKED, message);
+    }
 }

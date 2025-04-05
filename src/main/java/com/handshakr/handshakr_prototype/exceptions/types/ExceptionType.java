@@ -39,6 +39,27 @@ public enum ExceptionType {
         public RuntimeException create(String... params) {
             return new InvalidCredentialsException("Account is disabled");
         }
+    },
+    SERVICE_UNAVAILABLE {
+        @Override
+        public RuntimeException create(String... params) {
+            return new ServiceUnavailableException(
+                    params.length > 0 ? params[0] : "Service unavailable");
+        }
+    },
+    DATABASE_ERROR {
+        @Override
+        public RuntimeException create(String... params) {
+            return new DatabaseException(
+                    params.length > 0 ? params[0] : "Database operation failed");
+        }
+    },
+    ACCOUNT_LOCKED {
+        @Override
+        public RuntimeException create(String... params) {
+            return new AccountLockedException(
+                    params.length > 0 ? params[0] : "Account is locked");
+        }
     };
 
     public abstract RuntimeException create(String... params);
