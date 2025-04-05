@@ -1,6 +1,9 @@
 package com.handshakr.handshakr_prototype.exceptions;
 
+import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeAlreadyExistsException;
+import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeInitiatorNotFoundException;
 import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeNotFoundException;
+import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeReceiverNotFoundException;
 import com.handshakr.handshakr_prototype.exceptions.security.InvalidCredentialsException;
 import com.handshakr.handshakr_prototype.exceptions.security.UnauthorizedAccessException;
 import com.handshakr.handshakr_prototype.exceptions.general.*;
@@ -9,6 +12,8 @@ import com.handshakr.handshakr_prototype.exceptions.user.UserAlreadyExistsExcept
 import com.handshakr.handshakr_prototype.exceptions.user.UserNotFoundException;
 import com.handshakr.handshakr_prototype.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,118 +29,120 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getConstraintViolations().forEach(violation -> {
-            String fieldName = violation.getPropertyPath().toString();
-            String errorMessage = violation.getMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error("Validation failed: " + errors, HttpStatus.BAD_REQUEST.value()));
-    }
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    // ====== Validation Exceptions ======
+    @ExceptionHandler({
+            ConstraintViolationException.class,
+            MethodArgumentNotValidException.class,
+            BadRequestException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(Exception ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            String fieldName = error.getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error("Validation failed: " + errors, HttpStatus.BAD_REQUEST.value()));
-    }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        String errorMessage = "Database error occurred";
-        if (ex.getRootCause() != null) {
-            errorMessage = ex.getRootCause().getMessage();
+        if (ex instanceof ConstraintViolationException cve) {
+            cve.getConstraintViolations().forEach(violation ->
+                    errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
         }
+        else if (ex instanceof MethodArgumentNotValidException manve) {
+            manve.getBindingResult().getFieldErrors().forEach(error ->
+                    errors.put(error.getField(), error.getDefaultMessage()));
+        }
+
+        String message = ex instanceof BadRequestException ?
+                ex.getMessage() : "Validation failed: " + errors;
+
+        logger.warn("Validation error: {}", message);
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(errorMessage, HttpStatus.CONFLICT.value()));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(message, HttpStatus.BAD_REQUEST.value()));
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBadCredentialsException(BadCredentialsException ex) {
+    // ====== Authentication/Authorization Exceptions ======
+    @ExceptionHandler({
+            BadCredentialsException.class,
+            UnauthorizedAccessException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleAuthExceptions(RuntimeException ex) {
+        HttpStatus status = ex instanceof BadCredentialsException ?
+                HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
+
+        logger.warn("Authentication error: {}", ex.getMessage());
         return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error("Invalid username or password", HttpStatus.UNAUTHORIZED.value()));
+                .status(status)
+                .body(ApiResponse.error(ex.getMessage(), status.value()));
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT.value()));
-    }
-
-    @ExceptionHandler({UserNotFoundException.class, HandshakeNotFoundException.class})
-    public ResponseEntity<ApiResponse<Void>> handleNotFoundException(RuntimeException ex) {
+    // ====== Not Found Exceptions ======
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            HandshakeNotFoundException.class,
+            HandshakeReceiverNotFoundException.class,
+            HandshakeInitiatorNotFoundException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleNotFoundExceptions(RuntimeException ex) {
+        logger.warn("Resource not found: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(ex.getMessage(), HttpStatus.NOT_FOUND.value()));
     }
 
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+    // ====== Conflict Exceptions ======
+    @ExceptionHandler({
+            UserAlreadyExistsException.class,
+            HandshakeAlreadyExistsException.class,
+            ConflictException.class,
+            DataIntegrityViolationException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleConflictExceptions(RuntimeException ex) {
+        String message = ex instanceof DataIntegrityViolationException ?
+                "Database error: " + (ex.getCause() != null ? ex.getCause().getMessage() : "Constraint violation") :
+                ex.getMessage();
+
+        logger.warn("Conflict detected: {}", message);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(message, HttpStatus.CONFLICT.value()));
+    }
+
+    // ====== Forbidden Exceptions ======
+    @ExceptionHandler({
+            InvalidCredentialsException.class,
+            AccountLockedException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleForbiddenExceptions(RuntimeException ex) {
+        logger.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN.value()));
     }
 
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBadRequestException(BadRequestException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGlobalException(Exception ex, WebRequest request) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("An unexpected error occurred: " + ex.getMessage(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.value()));
-    }
-
+    // ====== Service Availability Exceptions ======
     @ExceptionHandler(ServiceUnavailableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleServiceUnavailableException(ServiceUnavailableException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleServiceUnavailable(ServiceUnavailableException ex) {
+        logger.error("Service unavailable: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(ApiResponse.error(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE.value()));
     }
 
+    // ====== Database Exceptions ======
     @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDatabaseException(DatabaseException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleDatabaseExceptions(DatabaseException ex) {
+        logger.error("Database error: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value()));
     }
 
-    @ExceptionHandler(AccountLockedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAccountLockedException(AccountLockedException ex) {
+    // ====== Global Fallback ======
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleGlobalException(Exception ex, WebRequest request) {
+        logger.error("Unhandled exception for request {}: {}",
+                request.getDescription(false), ex.getMessage(), ex);
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN.value()));
-    }
-
-    @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()));
-    }
-
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiResponse<Void>> handleConflictException(ConflictException ex) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ApiResponse.error(ex.getMessage(), HttpStatus.CONFLICT.value()));
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("An unexpected error occurred",
+                        HttpStatus.INTERNAL_SERVER_ERROR.value()));
     }
 }

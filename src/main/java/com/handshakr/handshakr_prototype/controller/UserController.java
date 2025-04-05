@@ -3,11 +3,12 @@ package com.handshakr.handshakr_prototype.controller;
 import com.handshakr.handshakr_prototype.handshake.HandshakeService;
 import com.handshakr.handshakr_prototype.handshake.dto.CreateHandshakeRequest;
 import com.handshakr.handshakr_prototype.handshake.dto.HandshakeDto;
+import com.handshakr.handshakr_prototype.response.ApiResponse;
 import com.handshakr.handshakr_prototype.user.User;
 import com.handshakr.handshakr_prototype.user.dto.SetPublicKeyRequest;
 import com.handshakr.handshakr_prototype.user.dto.UserDto;
 import com.handshakr.handshakr_prototype.user.UserService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -28,58 +29,50 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<String>> users() {
-        return ResponseEntity.ok(userService.users());
+    public ResponseEntity<ApiResponse<List<String>>> getAllUsernames() {
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", userService.users()));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> authenticatedUser(Principal principal) {
+    public ResponseEntity<ApiResponse<UserDto>> getAuthenticatedUser(Principal principal) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(UserDto.from(user));
+        return ResponseEntity.ok(ApiResponse.success("User details retrieved", UserDto.from(user)));
     }
 
     @GetMapping("/me/getPublicKey")
-    public ResponseEntity<String> getPublicKey(Principal principal) {
-        String name = principal.getName();
-        String publicKey = userService.findByUsername(name).getPublicKey();
-        return ResponseEntity.ok(publicKey);
+    public ResponseEntity<ApiResponse<String>> getPublicKey(Principal principal) {
+        String publicKey = userService.findByUsername(principal.getName()).getPublicKey();
+        return ResponseEntity.ok(ApiResponse.success("Public key retrieved", publicKey));
     }
 
     @PostMapping("/me/setPublicKey")
-    public ResponseEntity<HttpStatus> setPublicKey(@RequestBody SetPublicKeyRequest request, Principal principal) {
-        String name = principal.getName();
-        userService.findByUsername(name).setPublicKey(request.publicKey());
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<ApiResponse<Void>> setPublicKey(@Valid @RequestBody SetPublicKeyRequest request,
+                                                          Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        user.setPublicKey(request.publicKey());
+        userService.saveUser(user);
+        return ResponseEntity.ok(ApiResponse.success("Public key updated successfully"));
     }
 
     @PostMapping("/create-handshake")
-    public ResponseEntity<HandshakeDto> createHandshakeAsInitiator(
-            @RequestBody CreateHandshakeRequest request,
+    public ResponseEntity<ApiResponse<HandshakeDto>> createHandshakeAsInitiator(
+            @Valid @RequestBody CreateHandshakeRequest request,
             Principal principal) {
 
-        // Get logged-in user (initiator)
         String initiatorUsername = principal.getName();
         User initiator = userService.findByUsername(initiatorUsername);
+        User acceptor = userService.findByUsername(request.receiverUsername());
 
-        System.out.println("HandshakeController: initiator username: " + initiatorUsername);
-
-        // Verify acceptor exists
-        User acceptor = userService.findByUsername(request.acceptorUsername());
-
-        System.out.println("HandshakeController: receiver username: " + acceptor.getUsername());
-
-        // Create new request with initiator set to current user
         CreateHandshakeRequest securedRequest = new CreateHandshakeRequest(
                 request.handshakeName(),
                 request.encryptedDetails(),
-                new Date(), // Use current time
                 initiatorUsername,
-                request.acceptorUsername()
+                request.receiverUsername()
         );
 
         handshakeService.createHandshake(securedRequest);
         HandshakeDto createdHandshake = handshakeService.getHandshakeByName(request.handshakeName());
 
-        return ResponseEntity.ok(createdHandshake);
+        return ResponseEntity.ok(ApiResponse.success("Handshake created successfully", createdHandshake));
     }
 }

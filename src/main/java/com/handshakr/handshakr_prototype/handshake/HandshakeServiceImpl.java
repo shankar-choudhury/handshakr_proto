@@ -1,16 +1,16 @@
 package com.handshakr.handshakr_prototype.handshake;
 
 import com.handshakr.handshakr_prototype.exceptions.HandshakeExceptionFactory;
-import com.handshakr.handshakr_prototype.exceptions.UserExceptionFactory;
 import com.handshakr.handshakr_prototype.exceptions.user.UserNotFoundException;
 import com.handshakr.handshakr_prototype.handshake.dto.CreateHandshakeRequest;
 import com.handshakr.handshakr_prototype.handshake.dto.HandshakeDto;
-import com.handshakr.handshakr_prototype.handshake.dto.UpdateHandshakeRequest;
 import com.handshakr.handshakr_prototype.user.User;
 import com.handshakr.handshakr_prototype.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +27,7 @@ public class HandshakeServiceImpl implements HandshakeService{
     }
 
     @Override
+    @Transactional
     public void createHandshake(CreateHandshakeRequest request) {
         // Validate request
         if (request == null) {
@@ -35,53 +36,53 @@ public class HandshakeServiceImpl implements HandshakeService{
 
         try {
             User initiator = userService.findByUsername(request.initiatorUsername());
-            User acceptor = userService.findByUsername(request.acceptorUsername());
+            User acceptor = userService.findByUsername(request.receiverUsername());
 
             // Check if handshake name already exists
             if (repository.existsByHandshakeName(request.handshakeName())) {
-                throw exceptionFactory.create(
-                        ExceptionType.CONFLICT,
-                        "Handshake with name '" + request.handshakeName() + "' already exists");
+                throw exceptionFactory.handshakeAlreadyExists(request.handshakeName());
             }
 
             Handshake newHandshake = new Handshake(
                     request.handshakeName(),
                     request.encryptedDetails(),
-                    request.createdDate(),
                     request.initiatorUsername(),
-                    request.acceptorUsername(),
+                    request.receiverUsername(),
                     initiator,
                     acceptor);
 
             repository.save(newHandshake);
 
         } catch (UserNotFoundException e) {
-            throw exceptionFactory.userNotFound(
-                    e.getMessage().contains("username") ? request.acceptorUsername() : request.initiatorUsername());
+            throw exceptionFactory.badRequest(
+                    String.format("User not found: %s",
+                            e.getMessage().contains(request.initiatorUsername()) ?
+                                    "initiator" : "acceptor"));
+
         } catch (DataIntegrityViolationException e) {
             throw exceptionFactory.databaseError(
                     "Failed to create handshake: " + e.getMostSpecificCause().getMessage());
+
         } catch (Exception e) {
-            throw exceptionFactory.create(
-                    ExceptionType.SERVICE_UNAVAILABLE,
+            throw exceptionFactory.serviceUnavailable(
                     "Failed to create handshake: " + e.getMessage());
         }
     }
 
+
     @Override
-    public void updateHandshake(UpdateHandshakeRequest request) {
-        if (request == null || request.handshakeName() == null) {
-            throw exceptionFactory.badRequest("Update request and handshake name cannot be null");
+    @Transactional
+    public void updateHandshake(String handshakeName, HandshakeStatus status) {
+        if (handshakeName == null || handshakeName.isBlank()) {
+            throw exceptionFactory.badRequest("Handshake name cannot be empty");
         }
 
         try {
-            Handshake toUpdate = repository.findByHandshakeName(request.handshakeName())
-                    .orElseThrow(() -> exceptionFactory.create(
-                            ExceptionType.HANDSHAKE_NOT_FOUND,
-                            request.handshakeName()));
+            Handshake toUpdate = repository.findByHandshakeName(handshakeName)
+                    .orElseThrow(() -> exceptionFactory.handshakeNotFound(handshakeName));
 
-            toUpdate.setMostRecentUpdateDate(request.updatedDate());
-            toUpdate.setHandshakeStatus(request.status());
+            toUpdate.setMostRecentUpdateDate(Instant.now());
+            toUpdate.setHandshakeStatus(status);
 
             repository.save(toUpdate);
         } catch (Exception e) {
@@ -96,12 +97,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         try {
             return HandshakeDto.from(
                     repository.findByReceiverUsername(username)
-                            .orElseThrow(() -> exceptionFactory.create(
-                                    ExceptionType.HANDSHAKE_NOT_FOUND,
-                                    username, "acceptor username")));
+                            .orElseThrow(() -> exceptionFactory.receiverNotFound(username)));
         } catch (Exception e) {
-            throw exceptionFactory.create(
-                    ExceptionType.SERVICE_UNAVAILABLE,
+            throw exceptionFactory.serviceUnavailable(
                     "Failed to retrieve handshake by acceptor: " + e.getMessage());
         }
     }
@@ -112,12 +110,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         try {
             return HandshakeDto.from(
                     repository.findByInitiatorUsername(username)
-                            .orElseThrow(() -> exceptionFactory.create(
-                                    ExceptionType.HANDSHAKE_NOT_FOUND,
-                                    username, "initiator username")));
+                            .orElseThrow(() -> exceptionFactory.initiatorNotFound(username)));
         } catch (Exception e) {
-            throw exceptionFactory.create(
-                    ExceptionType.SERVICE_UNAVAILABLE,
+            throw exceptionFactory.serviceUnavailable(
                     "Failed to retrieve handshake by initiator: " + e.getMessage());
         }
     }
@@ -130,16 +125,14 @@ public class HandshakeServiceImpl implements HandshakeService{
         try {
             return HandshakeDto.from(
                     repository.findByHandshakeName(handshakeName)
-                            .orElseThrow(() -> exceptionFactory.create(
-                                    ExceptionType.HANDSHAKE_NOT_FOUND,
-                                    handshakeName)));
+                            .orElseThrow(() -> exceptionFactory.handshakeNotFound(handshakeName)));
         } catch (Exception e) {
-            throw exceptionFactory.create(
-                    ExceptionType.SERVICE_UNAVAILABLE,
+            throw exceptionFactory.serviceUnavailable(
                     "Failed to retrieve handshake by name: " + e.getMessage());
         }
     }
 
+    @Override
     public List<HandshakeDto> getHandshakesByInitiator(String username) {
         validateUsername(username);
         try {
@@ -148,8 +141,7 @@ public class HandshakeServiceImpl implements HandshakeService{
                     .map(HandshakeDto::from)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw exceptionFactory.create(
-                    ExceptionType.SERVICE_UNAVAILABLE,
+            throw exceptionFactory.serviceUnavailable(
                     "Failed to retrieve handshakes by initiator: " + e.getMessage());
         }
     }
@@ -163,8 +155,7 @@ public class HandshakeServiceImpl implements HandshakeService{
                     .map(HandshakeDto::from)
                     .collect(Collectors.toList());
         } catch (Exception e) {
-            throw exceptionFactory.create(
-                    ExceptionType.SERVICE_UNAVAILABLE,
+            throw exceptionFactory.serviceUnavailable(
                     "Failed to retrieve handshakes by acceptor: " + e.getMessage());
         }
     }

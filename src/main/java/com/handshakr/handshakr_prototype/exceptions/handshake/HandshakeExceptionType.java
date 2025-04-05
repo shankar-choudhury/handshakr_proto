@@ -1,6 +1,7 @@
 package com.handshakr.handshakr_prototype.exceptions.handshake;
 
 import com.handshakr.handshakr_prototype.exceptions.general.BadRequestException;
+import com.handshakr.handshakr_prototype.exceptions.general.DatabaseException;
 
 public enum HandshakeExceptionType {
     HANDSHAKE_ALREADY_EXISTS {
@@ -42,6 +43,12 @@ public enum HandshakeExceptionType {
         @Override
         public RuntimeException create(String... params) {
             return new BadRequestException(params[0]);
+        }
+    },
+    DATABASE_ERROR {
+        @Override
+        public RuntimeException create(String... params) {
+            return new DatabaseException(params.length > 0 ? params[0] : "Database operation failed");
         }
     };
 

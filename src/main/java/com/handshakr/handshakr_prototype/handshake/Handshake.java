@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.Date;
 
 import static com.handshakr.handshakr_prototype.handshake.HandshakeStatus.*;
@@ -24,9 +25,9 @@ public class Handshake {
     @Column
     private String encryptedDetails;
     @Column(nullable = false)
-    private Date createdDate; // Date handshake was agreed on
+    private Instant createdDate; // Date handshake was agreed on
     @Column
-    private Date mostRecentUpdateDate; // Date for most recent handshake update
+    private Instant mostRecentUpdateDate; // Date for most recent handshake update
     @Column(nullable = false)
     private HandshakeStatus handshakeStatus = CREATED;
     @Column(nullable = false)
@@ -43,14 +44,13 @@ public class Handshake {
 
     public Handshake(String handshakeName,
                      String encryptedDetails,
-                     Date createdDate,
                      String initiatorUsername,
                      String receiverUsername,
                      User initiator,
                      User receiver) {
         this.handshakeName = handshakeName;
         this.encryptedDetails = encryptedDetails;
-        this.createdDate = createdDate;
+        this.createdDate = Instant.now();
         this.initiatorUsername = initiatorUsername;
         this.receiverUsername = receiverUsername;
         this.initiator = initiator;

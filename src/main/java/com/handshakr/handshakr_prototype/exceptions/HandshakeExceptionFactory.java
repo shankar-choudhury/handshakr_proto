@@ -1,6 +1,7 @@
 package com.handshakr.handshakr_prototype.exceptions;
 
 import com.handshakr.handshakr_prototype.exceptions.general.BadRequestException;
+import com.handshakr.handshakr_prototype.exceptions.general.DatabaseException;
 import com.handshakr.handshakr_prototype.exceptions.handshake.*;
 
 import java.util.EnumMap;
@@ -52,5 +53,14 @@ public class HandshakeExceptionFactory implements BaseExceptionFactory {
     public HandshakeInitiatorNotFoundException initiatorNotFound(String username) {
         return (HandshakeInitiatorNotFoundException) create(
                 HandshakeExceptionType.INITIATOR_NOT_FOUND, username);
+    }
+
+    public DatabaseException databaseError(String message) {
+        return (DatabaseException) create(HandshakeExceptionType.DATABASE_ERROR, message);
+    }
+
+    public HandshakeServiceUnavailableException serviceUnavailable(String message) {
+        return (HandshakeServiceUnavailableException) create(
+                HandshakeExceptionType.HANDSHAKE_SERVICE_UNAVAILABLE, message);
     }
 }
