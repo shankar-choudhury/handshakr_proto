@@ -11,4 +11,6 @@ public interface HandshakeRepository extends CrudRepository<Handshake, Long> {
     Optional<Handshake> findByHandshakeName(String handshakeName);
     List<Handshake> findAllByInitiatorUsername(String username);
     List<Handshake> findAllByReceiverUsername(String username);
+
+    boolean existsByHandshakeName(String handshakeName);
 }

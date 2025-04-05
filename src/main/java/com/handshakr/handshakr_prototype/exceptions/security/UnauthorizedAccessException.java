@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.exceptions.types;
+package com.handshakr.handshakr_prototype.exceptions.security;
 
 public class UnauthorizedAccessException extends RuntimeException {
     public UnauthorizedAccessException(String message) {

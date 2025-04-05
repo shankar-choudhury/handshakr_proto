@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.exceptions.types;
+package com.handshakr.handshakr_prototype.exceptions.handshake;
 
 public class HandshakeNotFoundException extends RuntimeException {
     public HandshakeNotFoundException(String message) {

@@ -1,6 +1,10 @@
-package com.handshakr.handshakr_prototype.exceptions.types;
+package com.handshakr.handshakr_prototype.exceptions.user;
 
-public enum ExceptionType {
+import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeNotFoundException;
+import com.handshakr.handshakr_prototype.exceptions.security.InvalidCredentialsException;
+import com.handshakr.handshakr_prototype.exceptions.general.*;
+
+public enum UserExceptionType {
     USER_ALREADY_EXISTS {
         @Override
         public RuntimeException create(String... params) {
@@ -19,13 +23,6 @@ public enum ExceptionType {
         @Override
         public RuntimeException create(String... params) {
             return new InvalidCredentialsException("Invalid username or password");
-        }
-    },
-    HANDSHAKE_NOT_FOUND {
-        @Override
-        public RuntimeException create(String... params) {
-            return new HandshakeNotFoundException(
-                    String.format("Handshake not found with identifier: %s", params[0]));
         }
     },
     BAD_REQUEST {

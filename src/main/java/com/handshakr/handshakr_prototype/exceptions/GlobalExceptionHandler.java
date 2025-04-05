@@ -1,6 +1,12 @@
 package com.handshakr.handshakr_prototype.exceptions;
 
-import com.handshakr.handshakr_prototype.exceptions.types.*;
+import com.handshakr.handshakr_prototype.exceptions.handshake.HandshakeNotFoundException;
+import com.handshakr.handshakr_prototype.exceptions.security.InvalidCredentialsException;
+import com.handshakr.handshakr_prototype.exceptions.security.UnauthorizedAccessException;
+import com.handshakr.handshakr_prototype.exceptions.general.*;
+import com.handshakr.handshakr_prototype.exceptions.user.AccountLockedException;
+import com.handshakr.handshakr_prototype.exceptions.user.UserAlreadyExistsException;
+import com.handshakr.handshakr_prototype.exceptions.user.UserNotFoundException;
 import com.handshakr.handshakr_prototype.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
