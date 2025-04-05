@@ -1,3 +1,10 @@
 package com.handshakr.handshakr_prototype.user.dto;
 
-public record RegisterRequest(String email, String username, String password) { }
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.lang.NonNull;
+
+public record RegisterRequest(
+        @NotBlank @NotEmpty @NonNull String email,
+        @NotBlank @NotEmpty @NonNull String username,
+        @NotBlank @NotEmpty @NonNull String password) { }

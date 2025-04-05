@@ -2,6 +2,7 @@ package com.handshakr.handshakr_prototype.auth;
 
 import com.handshakr.handshakr_prototype.exceptions.UserExceptionFactory;
 import com.handshakr.handshakr_prototype.exceptions.user.UserExceptionType;
+import com.handshakr.handshakr_prototype.exceptions.user.UserNotFoundException;
 import com.handshakr.handshakr_prototype.user.UserService;
 import com.handshakr.handshakr_prototype.user.dto.LoginRequest;
 import com.handshakr.handshakr_prototype.user.dto.RegisterRequest;
@@ -65,11 +66,16 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public UserDetails authenticate(LoginRequest request) {
         // Validate input
-        if (request.username() == null || request.username().isBlank() || request.username().isEmpty()) {
+        if (request.username().isBlank()) {
             throw userExceptionFactory.badRequest("Username is required");
         }
-        if (request.password() == null || request.password().isBlank() || request.password().isEmpty()) {
+        if (request.password().isBlank()) {
             throw userExceptionFactory.badRequest("Password is required");
+        }
+
+        // Check if user exists first
+        if (!userService.usernameExists(request.username())) {
+            throw userExceptionFactory.userNotFound(request.username());
         }
 
         try {
@@ -79,21 +85,14 @@ public class AuthServiceImpl implements AuthService{
                             request.password()
                     ));
             return (UserDetails) authentication.getPrincipal();
-
         } catch (BadCredentialsException e) {
             throw userExceptionFactory.invalidCredentials();
-
         } catch (DisabledException e) {
-            throw userExceptionFactory.create(
-                    UserExceptionType.ACCOUNT_DISABLED);
-
+            throw userExceptionFactory.create(UserExceptionType.ACCOUNT_DISABLED);
         } catch (LockedException e) {
-            throw userExceptionFactory.badRequest(
-                    "Your account has been locked. Please contact support.");
-
+            throw userExceptionFactory.badRequest("Your account has been locked. Please contact support.");
         } catch (AuthenticationServiceException e) {
-            throw userExceptionFactory.badRequest(
-                    "Authentication service unavailable. Please try again later.");
+            throw userExceptionFactory.serviceUnavailable("Authentication service unavailable. Please try again later.");
         }
     }
 }

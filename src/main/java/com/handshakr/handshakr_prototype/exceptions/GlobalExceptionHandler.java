@@ -14,6 +14,8 @@ import com.handshakr.handshakr_prototype.response.ApiResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -39,18 +42,30 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(Exception ex) {
         Map<String, String> errors = new HashMap<>();
+        String message;
 
         if (ex instanceof ConstraintViolationException cve) {
             cve.getConstraintViolations().forEach(violation ->
-                    errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
+                    errors.put(
+                            violation.getPropertyPath().toString(),
+                            violation.getMessage()
+                    ));
+            message = "Validation failed: " + errors;
         }
         else if (ex instanceof MethodArgumentNotValidException manve) {
             manve.getBindingResult().getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
+            {
+                error.getDefaultMessage();
+                errors.put(
+                        error.getField(),
+                        error.getDefaultMessage()
+                );
+            });
+            message = "Invalid request: " + errors;
         }
-
-        String message = ex instanceof BadRequestException ?
-                ex.getMessage() : "Validation failed: " + errors;
+        else {
+            message = ex.getMessage();  // For BadRequestException and ValidationException
+        }
 
         logger.warn("Validation error: {}", message);
         return ResponseEntity
@@ -105,16 +120,16 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message, HttpStatus.CONFLICT.value()));
     }
 
-    // ====== Forbidden Exceptions ======
+    // ====== Unauthorized Exceptions ======
     @ExceptionHandler({
             InvalidCredentialsException.class,
             AccountLockedException.class
     })
-    public ResponseEntity<ApiResponse<Void>> handleForbiddenExceptions(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorizedExceptions(RuntimeException ex) {
         logger.warn("Access denied: {}", ex.getMessage());
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(ex.getMessage(), HttpStatus.FORBIDDEN.value()));
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()));
     }
 
     // ====== Service Availability Exceptions ======

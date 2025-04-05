@@ -6,7 +6,6 @@ public record UserDto(
         Long id,
         String username,
         String email
-        // Exclude collections and sensitive data
 ) {
     public static UserDto from(User user) {
         return new UserDto(

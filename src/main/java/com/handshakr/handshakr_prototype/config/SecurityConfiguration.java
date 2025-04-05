@@ -57,7 +57,7 @@ public class SecurityConfiguration {
 
                 // Filter order configuration
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new CsrfCookieResponseFilter(), CsrfFilter.class)
+                //.addFilterAfter(new CsrfCookieResponseFilter(), CsrfFilter.class)
 
                 // Logout
                 .logout(logout -> logout

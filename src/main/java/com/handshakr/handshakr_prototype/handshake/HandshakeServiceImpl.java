@@ -33,6 +33,18 @@ public class HandshakeServiceImpl implements HandshakeService{
         if (request == null) {
             throw exceptionFactory.badRequest("Handshake request cannot be null");
         }
+        if (request.handshakeName() == null || request.handshakeName().isEmpty() || request.handshakeName().isBlank()) {
+            throw exceptionFactory.badRequest("Handshake name cannot be null, empty, or blank");
+        }
+        if (request.encryptedDetails() == null || request.encryptedDetails().isEmpty() || request.encryptedDetails().isBlank()) {
+            throw exceptionFactory.badRequest("Handshake encrypted details cannot be null, empty, or blank");
+        }
+        if (request.initiatorUsername() == null || request.initiatorUsername().isEmpty() || request.initiatorUsername().isBlank()) {
+            throw exceptionFactory.badRequest("Handshake initiator name cannot be null, empty, or blank");
+        }
+        if (request.receiverUsername() == null || request.receiverUsername().isEmpty() || request.receiverUsername().isBlank()) {
+            throw exceptionFactory.badRequest("Handshake receiver name cannot be null, empty, or blank");
+        }
 
         try {
             User initiator = userService.findByUsername(request.initiatorUsername());
