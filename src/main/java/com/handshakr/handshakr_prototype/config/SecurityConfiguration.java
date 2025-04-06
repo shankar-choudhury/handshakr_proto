@@ -94,7 +94,7 @@ public class SecurityConfiguration {
         config.setAllowedHeaders(List.of("*"));
 
         config.setAllowCredentials(true);  // Crucial for cookies
-        config.setExposedHeaders(List.of("X-XSRF-TOKEN"));  // Expose CSRF header
+        config.setExposedHeaders(List.of("X-CSRF-TOKEN"));  // Expose CSRF header
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
