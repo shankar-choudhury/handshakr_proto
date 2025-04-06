@@ -74,15 +74,30 @@ public class SecurityConfiguration {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); //List.of("http://localhost:8080", "http://localhost:3000", "https://handshakr-v2.vercel.app", "https://handshakr.duckdns.org"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);  // Crucial for cookies
-        configuration.setExposedHeaders(List.of("X-XSRF-TOKEN"));  // Expose CSRF header
+        CorsConfiguration config = new CorsConfiguration();
+        //config.setAllowedOrigins(List.of("*")); //List.of("http://localhost:8080", "http://localhost:3000", "https://handshakr-v2.vercel.app", "https://handshakr.duckdns.org"));
+
+        // Web origins (SameSite=Lax)
+        config.setAllowedOrigins(List.of(
+                "https://handshakr.duckdns.org",
+                "https://handshakr-v2.vercel.app",
+                "http://localhost:3000"
+        ));
+
+        // Mobile patterns (SameSite=None)
+        config.setAllowedOriginPatterns(List.of(
+                "app://*",
+                "http://localhost*"
+        ));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+
+        config.setAllowCredentials(true);  // Crucial for cookies
+        config.setExposedHeaders(List.of("X-XSRF-TOKEN"));  // Expose CSRF header
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
@@ -93,7 +108,6 @@ public class SecurityConfiguration {
         repository.setCookieCustomizer(responseCookieBuilder -> responseCookieBuilder
                 .secure(true)
                 .path("/")
-                .sameSite("Lax")
                 .maxAge(-1)
         );
 
