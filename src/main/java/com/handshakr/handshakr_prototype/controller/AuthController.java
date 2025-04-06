@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.security.Principal;
 
 import static com.handshakr.handshakr_prototype.auth.Constants.*;
 
@@ -52,5 +52,10 @@ public class AuthController {
 
         response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
         return ResponseEntity.ok(ApiResponse.success("Login successful", jwtToken));
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<ApiResponse<String>> validateToken(Principal principal) {
+        return ResponseEntity.ok(ApiResponse.success("Token valid", principal.getName()));
     }
 }

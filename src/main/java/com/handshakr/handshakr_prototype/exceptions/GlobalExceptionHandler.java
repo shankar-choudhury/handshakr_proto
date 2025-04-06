@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException.class,
             BadRequestException.class
     })
-    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(Exception ex) {
+    public ResponseEntity<ApiResponse<String>> handleValidationExceptions(Exception ex) {
         Map<String, String> errors = new HashMap<>();
         String message;
 
@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
             UsernameNotFoundException.class,
             InvalidCredentialsException.class
     })
-    public ResponseEntity<ApiResponse<Void>> handleAuthenticationFailures(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<String>> handleAuthenticationFailures(RuntimeException ex) {
         logger.warn("Authentication failure: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
@@ -84,7 +84,7 @@ public class GlobalExceptionHandler {
             LockedException.class,
             AccountLockedException.class
     })
-    public ResponseEntity<ApiResponse<Void>> handleAccountStatusExceptions(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<String>> handleAccountStatusExceptions(RuntimeException ex) {
         String message = ex instanceof DisabledException ?
                 "Account is disabled" : "Account is locked";
 
@@ -102,7 +102,7 @@ public class GlobalExceptionHandler {
             HandshakeReceiverNotFoundException.class,
             HandshakeInitiatorNotFoundException.class
     })
-    public ResponseEntity<ApiResponse<Void>> handleNotFoundExceptions(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<String>> handleNotFoundExceptions(RuntimeException ex) {
         logger.warn("Resource not found: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -116,7 +116,7 @@ public class GlobalExceptionHandler {
             ConflictException.class,
             DataIntegrityViolationException.class
     })
-    public ResponseEntity<ApiResponse<Void>> handleConflictExceptions(RuntimeException ex) {
+    public ResponseEntity<ApiResponse<String>> handleConflictExceptions(RuntimeException ex) {
         String message = ex instanceof DataIntegrityViolationException ?
                 "Database error: " + (ex.getCause() != null ? ex.getCause().getMessage() : "Constraint violation") :
                 ex.getMessage();
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler {
 
     // ====== Service Availability (503) ======
     @ExceptionHandler(ServiceUnavailableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleServiceUnavailable(ServiceUnavailableException ex) {
+    public ResponseEntity<ApiResponse<String>> handleServiceUnavailable(ServiceUnavailableException ex) {
         logger.error("Service unavailable: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.SERVICE_UNAVAILABLE)
@@ -138,7 +138,7 @@ public class GlobalExceptionHandler {
 
     // ====== Database Errors (500) ======
     @ExceptionHandler(DatabaseException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDatabaseExceptions(DatabaseException ex) {
+    public ResponseEntity<ApiResponse<String>> handleDatabaseExceptions(DatabaseException ex) {
         logger.error("Database error: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -147,7 +147,7 @@ public class GlobalExceptionHandler {
 
     // ====== Authorization Failures (403) ======
     @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAuthorizationFailures(UnauthorizedAccessException ex) {
+    public ResponseEntity<ApiResponse<String>> handleAuthorizationFailures(UnauthorizedAccessException ex) {
         logger.warn("Authorization failure: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
@@ -156,9 +156,10 @@ public class GlobalExceptionHandler {
 
     // ====== Global Fallback (500) ======
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleGlobalException(Exception ex, WebRequest request) {
+    public ResponseEntity<ApiResponse<String>> handleGlobalException(Exception ex, WebRequest request) {
         logger.error("Unhandled exception for request {}: {}",
                 request.getDescription(false), ex.getMessage(), ex);
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("An unexpected error occurred",

@@ -9,7 +9,7 @@ public record ApiResponse<T>(String message, int httpStatus, T data) {
         return new ApiResponse<>(message, 200, null);
     }
 
-    public static ApiResponse<Void> error(String message, int status) {
+    public static ApiResponse<String> error(String message, int status) {
         return new ApiResponse<>(message, status, null);
     }
 }
