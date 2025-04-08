@@ -35,7 +35,9 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserDto>> getAuthenticatedUser(Principal principal) {
+
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         return ResponseEntity.ok(ApiResponse.success("User details retrieved", UserDto.from(user)));
     }
 

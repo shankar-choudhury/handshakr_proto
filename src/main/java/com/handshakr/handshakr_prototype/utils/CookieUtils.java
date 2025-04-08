@@ -16,7 +16,7 @@ public class CookieUtils {
                 .secure(true)
                 .path("/")
                 .maxAge(Duration.ofSeconds(maxAgeSeconds))
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
     }
 }

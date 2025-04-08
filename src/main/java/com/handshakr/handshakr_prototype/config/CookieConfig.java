@@ -12,7 +12,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.util.List;
 import java.util.Optional;
 
-@Configuration
+//@Configuration
 public class CookieConfig {
 
     // Define your web origins here (matches CORS config)
@@ -21,7 +21,7 @@ public class CookieConfig {
             "http://localhost:3000"
     );
 
-    @Bean
+    //@Bean
     public CookieSameSiteSupplier sameSiteSupplier() {
         return cookie -> {
             if (Constants.CSRF_COOKIE_NAME.equals(cookie.getName())) {

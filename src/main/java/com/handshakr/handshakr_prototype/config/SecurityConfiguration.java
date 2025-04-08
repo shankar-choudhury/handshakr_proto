@@ -41,7 +41,7 @@ public class SecurityConfiguration {
                 // CSRF with logout protection configuration
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository())
-                        .ignoringRequestMatchers("/auth/login", "/auth/register")
+                        .ignoringRequestMatchers("/auth/login", "/auth/register", "/jenkins")
                 )
 
                 // CORS configuration
@@ -49,7 +49,7 @@ public class SecurityConfiguration {
 
                 // Authorization
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/logout").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/logout", "/jenkins").permitAll()
                         .anyRequest().authenticated())
 
                 // Stateless session
@@ -108,6 +108,7 @@ public class SecurityConfiguration {
         repository.setCookieCustomizer(responseCookieBuilder -> responseCookieBuilder
                 .secure(true)
                 .path("/")
+                .sameSite("None")
                 .maxAge(-1)
         );
 
@@ -118,10 +119,10 @@ public class SecurityConfiguration {
     public LogoutSuccessHandler logoutSuccessHandler() {
         return (request, response, authentication) -> {
             ResponseCookie clearJwt = ResponseCookie.from(JWT_COOKIE_NAME, "")
-                    .httpOnly(true).secure(true).path("/").maxAge(0).build();
+                    .httpOnly(true).secure(true).path("/").sameSite("None").maxAge(0).build();
 
             ResponseCookie clearCsrf = ResponseCookie.from(CSRF_COOKIE_NAME, "")
-                    .httpOnly(false).secure(true).path("/").maxAge(0).build();
+                    .httpOnly(false).secure(true).path("/").sameSite("None").maxAge(0).build();
 
             response.addHeader(HttpHeaders.SET_COOKIE, clearJwt.toString());
             response.addHeader(HttpHeaders.SET_COOKIE, clearCsrf.toString());
