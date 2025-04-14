@@ -50,7 +50,7 @@ public class SecurityConfiguration {
 
                 // Authorization
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/logout", "/jenkins").permitAll()
+                        .requestMatchers("/auth/register", "/auth/login", "/auth/logout", "/debug/**", "/jenkins").permitAll()
                         .anyRequest().authenticated())
 
                 // Stateless session
