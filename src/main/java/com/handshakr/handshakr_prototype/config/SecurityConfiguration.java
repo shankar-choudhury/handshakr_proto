@@ -104,7 +104,7 @@ public class SecurityConfiguration {
         CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
 
         repository.setCookieCustomizer(responseCookieBuilder -> responseCookieBuilder
-                .domain("handshakr.duckdns.org")
+                //.domain("handshakr.duckdns.org")
                 .secure(true)
                 .path("/")
                 .sameSite("None")
