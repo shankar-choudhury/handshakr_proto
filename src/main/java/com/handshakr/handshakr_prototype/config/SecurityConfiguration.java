@@ -80,14 +80,12 @@ public class SecurityConfiguration {
         // Web origins (SameSite=Lax)
         config.setAllowedOrigins(List.of(
                 "https://handshakr.duckdns.org",
-                "https://handshakr-v2.vercel.app",
                 "http://localhost:3000"
         ));
 
         // Mobile patterns (SameSite=None)
         config.setAllowedOriginPatterns(List.of(
-                "app://*",
-                "http://localhost*"
+                "app://*"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -106,6 +104,7 @@ public class SecurityConfiguration {
         CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
 
         repository.setCookieCustomizer(responseCookieBuilder -> responseCookieBuilder
+                .domain("handshakr.duckdns.org")
                 .secure(true)
                 .path("/")
                 .sameSite("None")

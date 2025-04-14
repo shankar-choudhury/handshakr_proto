@@ -4,8 +4,6 @@ import com.handshakr.handshakr_prototype.auth.Constants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.web.server.Cookie;
 import org.springframework.boot.web.servlet.server.CookieSameSiteSupplier;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
