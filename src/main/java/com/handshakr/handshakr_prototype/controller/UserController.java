@@ -61,8 +61,6 @@ public class UserController {
             @Valid @RequestBody CreateHandshakeRequest request,
             Principal principal) {
 
-        System.out.println(request);
-
         String initiatorUsername = principal.getName();
         User initiator = userService.findByUsername(initiatorUsername);
         User acceptor = userService.findByUsername(request.receiverUsername());

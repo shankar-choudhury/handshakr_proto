@@ -38,6 +38,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
+                .addFilterBefore(new RequestLoggingFilter(), CsrfFilter.class)
                 // CSRF with logout protection configuration
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(csrfTokenRepository())
