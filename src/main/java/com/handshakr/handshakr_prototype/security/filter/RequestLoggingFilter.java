@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.config;
+package com.handshakr.handshakr_prototype.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,7 +11,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,16 +57,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
                 """);
 
-        // Log parameters
-        /*Map<String, String[]> parameters = request.getParameterMap();
-        if (!parameters.isEmpty()) {
-            System.out.println("Parameters:");
-            parameters.forEach((key, values) ->
-                    logger.debug("  {} = {}", key, String.join(", ", values))
-            );
-        }*/
 
-        // Continue the filter chain
         filterChain.doFilter(request, response);
     }
 }

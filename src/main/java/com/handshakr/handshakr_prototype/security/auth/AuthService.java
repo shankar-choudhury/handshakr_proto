@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.auth;
+package com.handshakr.handshakr_prototype.security.auth;
 
 import com.handshakr.handshakr_prototype.user.dto.LoginRequest;
 import com.handshakr.handshakr_prototype.user.dto.RegisterRequest;

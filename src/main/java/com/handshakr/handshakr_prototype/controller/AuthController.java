@@ -1,7 +1,7 @@
 package com.handshakr.handshakr_prototype.controller;
 
-import com.handshakr.handshakr_prototype.auth.AuthService;
-import com.handshakr.handshakr_prototype.auth.JwtService;
+import com.handshakr.handshakr_prototype.security.auth.AuthService;
+import com.handshakr.handshakr_prototype.security.auth.JwtService;
 import com.handshakr.handshakr_prototype.response.ApiResponse;
 import com.handshakr.handshakr_prototype.user.dto.LoginRequest;
 import com.handshakr.handshakr_prototype.user.dto.RegisterRequest;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +20,7 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.handshakr.handshakr_prototype.auth.Constants.*;
+import static com.handshakr.handshakr_prototype.Constants.*;
 
 @Controller
 @RequestMapping("/auth")

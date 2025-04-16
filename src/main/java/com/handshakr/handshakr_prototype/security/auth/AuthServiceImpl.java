@@ -1,8 +1,7 @@
-package com.handshakr.handshakr_prototype.auth;
+package com.handshakr.handshakr_prototype.security.auth;
 
 import com.handshakr.handshakr_prototype.exceptions.UserExceptionFactory;
 import com.handshakr.handshakr_prototype.exceptions.user.UserExceptionType;
-import com.handshakr.handshakr_prototype.exceptions.user.UserNotFoundException;
 import com.handshakr.handshakr_prototype.user.UserService;
 import com.handshakr.handshakr_prototype.user.dto.LoginRequest;
 import com.handshakr.handshakr_prototype.user.dto.RegisterRequest;

@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.config;
+package com.handshakr.handshakr_prototype.security.config;
 
 import com.handshakr.handshakr_prototype.user.UserRepository;
 import com.handshakr.handshakr_prototype.user.UserService;

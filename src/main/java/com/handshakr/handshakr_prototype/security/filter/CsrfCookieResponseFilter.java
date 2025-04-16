@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.config;
+package com.handshakr.handshakr_prototype.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

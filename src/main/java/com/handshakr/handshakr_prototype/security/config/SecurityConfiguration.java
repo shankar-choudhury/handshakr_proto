@@ -1,8 +1,11 @@
-package com.handshakr.handshakr_prototype.config;
+package com.handshakr.handshakr_prototype.security.config;
 
-import static com.handshakr.handshakr_prototype.auth.Constants.*;
+import static com.handshakr.handshakr_prototype.Constants.*;
 
 
+import com.handshakr.handshakr_prototype.security.filter.CsrfCookieResponseFilter;
+import com.handshakr.handshakr_prototype.security.filter.JwtAuthenticationFilter;
+import com.handshakr.handshakr_prototype.security.filter.RequestLoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -15,9 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.*;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -99,16 +100,7 @@ public class SecurityConfiguration {
 
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
-        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-
-        repository.setCookieCustomizer(responseCookieBuilder -> responseCookieBuilder
-                .secure(true)
-                .path("/")
-                .sameSite("None")
-                .maxAge(-1)
-        );
-
-        return repository;
+        return new PersistentCookieCsrfTokenRepository();
     }
 
     @Bean
@@ -125,4 +117,5 @@ public class SecurityConfiguration {
             response.setStatus(HttpStatus.OK.value());
         };
     }
+
 }
