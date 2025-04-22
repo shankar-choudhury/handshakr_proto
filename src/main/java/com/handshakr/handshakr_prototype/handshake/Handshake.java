@@ -11,6 +11,10 @@ import java.util.Date;
 
 import static com.handshakr.handshakr_prototype.handshake.HandshakeStatus.*;
 
+/**
+ * Represents a handshake between two users in the system.
+ * The entity stores information related to the handshake's status, creation, and participants.
+ */
 @Entity
 @Getter
 @Setter
@@ -42,6 +46,16 @@ public class Handshake {
     private User receiver;
 
 
+    /**
+     * Constructor for creating a new handshake.
+     *
+     * @param handshakeName The unique name of the handshake.
+     * @param encryptedDetails The encrypted details of the handshake.
+     * @param initiatorUsername The username of the initiator.
+     * @param receiverUsername The username of the receiver.
+     * @param initiator The User entity representing the initiator.
+     * @param receiver The User entity representing the receiver.
+     */
     public Handshake(String handshakeName,
                      String encryptedDetails,
                      String initiatorUsername,

@@ -22,6 +22,11 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * A filter that processes JWT authentication from the Authorization header or HTTP cookies.
+ *
+ * <p>Sets the {@link SecurityContextHolder} if the token is valid and user details are found.</p>
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

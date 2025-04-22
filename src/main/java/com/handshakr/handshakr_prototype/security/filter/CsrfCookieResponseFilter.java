@@ -14,6 +14,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collection;
 
+/**
+ * A filter that sets the CSRF token as a response header and exposes the XSRF-TOKEN cookie value in the request attributes.
+ *
+ * This is an insecure practice, as it defeats the purpose of JWT Cookie + CSRF double-submit cookie security pattern. The motivation for this was to aid in frontend and mobile development so that cookie values and token values are available and easily integrated.
+ *
+ * <p>This filter should be placed after the {@link org.springframework.security.web.csrf.CsrfFilter}.
+ */
 public class CsrfCookieResponseFilter extends OncePerRequestFilter {
 
 

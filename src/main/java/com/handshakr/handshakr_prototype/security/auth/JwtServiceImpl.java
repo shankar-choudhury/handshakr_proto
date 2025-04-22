@@ -15,31 +15,50 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Implementation of {@link JwtService} that provides functionality for generating and validating JWT tokens.
+ */
 @Service
 public class JwtServiceImpl implements JwtService{
     @Value("${jwt.secret-key}")
     private String secretKey;
     private final long jwtExpiration = Constants.JWT_EXPIRATION;
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String generateToken(UserDetails details) {
         return generateToken(new HashMap<>(), details);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String generateToken(Map<String, Object> extraClaims, UserDetails details) {
         return buildToken(extraClaims, details, jwtExpiration);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getExpirationTime() {
         return jwtExpiration;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isTokenValid(String token, UserDetails details) {
         String username = extractUsername(token);

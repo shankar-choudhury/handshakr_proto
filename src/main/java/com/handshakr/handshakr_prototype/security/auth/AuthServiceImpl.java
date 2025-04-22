@@ -13,6 +13,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of the {@link AuthService} interface that handles user
+ * registration and authentication using Spring Security components.
+ */
 @Service
 public class AuthServiceImpl implements AuthService{
     private final UserService userService;
@@ -20,6 +24,14 @@ public class AuthServiceImpl implements AuthService{
     private final AuthenticationManager manager;
     private final UserExceptionFactory userExceptionFactory;
 
+    /**
+     * Constructs a new {@code AuthServiceImpl}.
+     *
+     * @param userService the service for managing users
+     * @param encoder the password encoder for securing passwords
+     * @param manager the authentication manager for verifying credentials
+     * @param userExceptionFactory the factory for creating user-related exceptions
+     */
     public AuthServiceImpl(UserService userService, PasswordEncoder encoder, AuthenticationManager manager, UserExceptionFactory userExceptionFactory) {
         this.userService = userService;
         this.encoder = encoder;
@@ -27,6 +39,9 @@ public class AuthServiceImpl implements AuthService{
         this.userExceptionFactory = userExceptionFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User register(RegisterRequest request) {
         // Check if username already exists
@@ -62,6 +77,9 @@ public class AuthServiceImpl implements AuthService{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserDetails authenticate(LoginRequest request) {
         try {

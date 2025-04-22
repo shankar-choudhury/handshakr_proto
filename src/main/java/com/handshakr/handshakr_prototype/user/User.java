@@ -12,6 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Represents a registered user in the system.
+ * Implements Spring Security's {@link UserDetails} to integrate with the authentication framework.
+ */
 @Entity
 @Table(name="Users")
 @NoArgsConstructor
@@ -36,6 +40,9 @@ public class User implements UserDetails {
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
 
+    /**
+     * Constructs a user with the given credentials.
+     */
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;

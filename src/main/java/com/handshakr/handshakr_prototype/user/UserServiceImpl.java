@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of {@link UserService}.
+ * Handles validation and exception handling around user operations.
+ */
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -17,6 +21,9 @@ public class UserServiceImpl implements UserService {
         this.userExceptionFactory = userExceptionFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User findByUsername(String username) {
         if (username == null || username.isBlank()) {
@@ -27,6 +34,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> userExceptionFactory.userNotFound(username));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User findByEmail(String email) {
         if (email == null || email.isBlank()) {
@@ -37,6 +47,9 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> userExceptionFactory.userNotFound(email));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<String> users() {
         try {
@@ -49,6 +62,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean usernameExists(String username) {
         if (username == null || username.isBlank()) {
@@ -61,6 +77,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean emailExists(String email) {
         if (email == null || email.isBlank()) {
@@ -73,6 +92,9 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public User saveUser(User user) {
         if (user == null) {

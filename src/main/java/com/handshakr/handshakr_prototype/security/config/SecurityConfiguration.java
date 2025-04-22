@@ -25,6 +25,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Main Spring Security configuration for the application.
+ *
+ * <p>Handles CORS, CSRF protection, JWT filter, and logout behavior.</p>
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -36,6 +41,9 @@ public class SecurityConfiguration {
         this.jwtFilter = jwtFilter;
     }
 
+    /**
+     * Configures the Spring Security filter chain.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         return http
@@ -74,6 +82,9 @@ public class SecurityConfiguration {
                 .build();
     }
 
+    /**
+     * Configures allowed origins, headers, and methods for CORS.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -98,11 +109,18 @@ public class SecurityConfiguration {
         return source;
     }
 
+    /**
+     * Defines the CSRF token repository used for persisting CSRF tokens in cookies.
+     */
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
         return new PersistentCookieCsrfTokenRepository();
     }
 
+    /**
+     * Defines the behavior when a logout is successful.
+     * Clears both JWT and CSRF cookies.
+     */
     @Bean
     public LogoutSuccessHandler logoutSuccessHandler() {
         return (request, response, authentication) -> {

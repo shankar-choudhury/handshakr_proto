@@ -16,9 +16,19 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Custom implementation of {@link CsrfTokenRepository} that stores CSRF tokens in cookies.
+ */
 public class PersistentCookieCsrfTokenRepository implements CsrfTokenRepository {
     private static final String CSRF_COOKIE_NAME = Constants.CSRF_COOKIE_NAME;
     private static final String CSRF_HEADER_NAME = "X-XSRF-TOKEN";
+
+    /**
+     * Generates a new CSRF token or reuses an existing one from cookies.
+     *
+     * @param request the HTTP request
+     * @return the generated CSRF token
+     */
     @Override
     public CsrfToken generateToken(HttpServletRequest request) {
         return loadTokenValue(request)
@@ -27,6 +37,13 @@ public class PersistentCookieCsrfTokenRepository implements CsrfTokenRepository 
 
     }
 
+    /**
+     * Saves the CSRF token in the response as a cookie.
+     *
+     * @param token the CSRF token to save
+     * @param request the HTTP request
+     * @param response the HTTP response
+     */
     @Override
     public void saveToken(
             CsrfToken token,
@@ -45,6 +62,12 @@ public class PersistentCookieCsrfTokenRepository implements CsrfTokenRepository 
 
     }
 
+    /**
+     * Loads the CSRF token from cookies.
+     *
+     * @param request the HTTP request
+     * @return the CSRF token or null if not found
+     */
     @Override
     public CsrfToken loadToken(HttpServletRequest request) {
         CsrfToken token = loadTokenValue(request)

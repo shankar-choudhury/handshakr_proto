@@ -14,6 +14,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of the HandshakeService interface.
+ * Provides methods to create, update, and retrieve handshakes, and handles the business logic of handshakes.
+ */
 @Service
 public class HandshakeServiceImpl implements HandshakeService{
     private final UserService userService;
@@ -26,6 +30,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public void createHandshake(CreateHandshakeRequest request, String initiatorUsername) {
@@ -70,6 +77,9 @@ public class HandshakeServiceImpl implements HandshakeService{
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
     public void updateHandshake(String handshakeName, HandshakeStatus status) {
@@ -91,6 +101,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HandshakeDto getHandshakeByAcceptor(String username) {
         validateUsername(username);
@@ -104,6 +117,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HandshakeDto getHandshakeByInitiator(String username) {
         validateUsername(username);
@@ -117,6 +133,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HandshakeDto getHandshakeByName(String handshakeName) {
         if (handshakeName == null || handshakeName.isBlank()) {
@@ -132,6 +151,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<HandshakeDto> getHandshakesByInitiator(String username) {
         validateUsername(username);
@@ -146,6 +168,9 @@ public class HandshakeServiceImpl implements HandshakeService{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<HandshakeDto> getHandshakesByAcceptor(String username) {
         validateUsername(username);
