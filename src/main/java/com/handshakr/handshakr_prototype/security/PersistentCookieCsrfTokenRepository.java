@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.security.config;
+package com.handshakr.handshakr_prototype.security;
 
 import com.handshakr.handshakr_prototype.Constants;
 import com.handshakr.handshakr_prototype.utils.CookieUtils;

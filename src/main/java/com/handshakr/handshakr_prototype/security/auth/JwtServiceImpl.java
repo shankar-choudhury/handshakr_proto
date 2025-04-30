@@ -118,4 +118,8 @@ public class JwtServiceImpl implements JwtService{
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public void setSecretKey(String key) {
+        this.secretKey = key;
+    }
 }

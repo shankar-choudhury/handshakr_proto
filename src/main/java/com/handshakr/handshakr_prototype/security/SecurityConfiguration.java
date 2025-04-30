@@ -1,4 +1,4 @@
-package com.handshakr.handshakr_prototype.security.config;
+package com.handshakr.handshakr_prototype.security;
 
 import static com.handshakr.handshakr_prototype.Constants.*;
 
